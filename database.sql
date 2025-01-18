@@ -514,6 +514,15 @@ BEGIN
 END
 GO
 
+CREATE OR ALTER PROC selectGradeByID
+@gradeId INT
+AS
+BEGIN
+    SELECT * FROM grade
+	WHERE gradeId = @gradeId
+END
+GO
+selectGradeByID 1
 	--U
 CREATE OR ALTER PROC updateGrade
     @midScore FLOAT,
@@ -622,6 +631,7 @@ BEGIN
 	FETCH NEXT @numberofrows ROWS ONLY
 END
 GO
+pagingGradeStu 1, 5, 1
 
 
 	--count something

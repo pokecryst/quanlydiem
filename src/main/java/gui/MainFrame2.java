@@ -40,18 +40,17 @@ import dao.GradeDao;
 import dao.GradeStuDao;
 import entity.Classes;
 import entity.Student;
-import helper.Regex;
 import service.ConnectDB;
 import sub.UpdateGrade;
 
 import javax.swing.JTextField;
 import javax.swing.JButton;
-import javax.swing.JDesktopPane;
 import javax.swing.SwingConstants;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JDesktopPane;
 
-public class MainFrame extends JFrame {
+public class MainFrame2 extends JFrame {
 
     private static final long serialVersionUID = 1L;
     private JPanel contentQLD_GV;
@@ -94,7 +93,7 @@ public class MainFrame extends JFrame {
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             try {
-                var frame = new MainFrame();
+                var frame = new MainFrame2();
                 frame.setVisible(true);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -102,7 +101,7 @@ public class MainFrame extends JFrame {
         });
     }
 
-    public MainFrame() {
+    public MainFrame2() {
     	setTitle("Teacher Frame");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 800, 616);
@@ -116,6 +115,7 @@ public class MainFrame extends JFrame {
 
         mntmTeacherAccInfo = new JMenuItem("Account Info");
         mnNewMenu.add(mntmTeacherAccInfo);
+        
         contentQLD_GV = new JPanel();
         contentQLD_GV.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -234,7 +234,7 @@ public class MainFrame extends JFrame {
         gbc_lblClass.gridy = 0;
         panelInfo.add(lblClass, gbc_lblClass);
 
-        lblClName = new JLabel("");
+        lblClName = new JLabel("placeholder name");
         var gbc_lblClName = new GridBagConstraints();
         gbc_lblClName.insets = new Insets(0, 0, 5, 0);
         gbc_lblClName.anchor = GridBagConstraints.WEST;
@@ -250,7 +250,7 @@ public class MainFrame extends JFrame {
         gbc_lblNewLabel.gridy = 1;
         panelInfo.add(lblNewLabel, gbc_lblNewLabel);
 
-        lblStuCounts = new JLabel("0");
+        lblStuCounts = new JLabel("placeholder num");
         var gbc_lblStuCounts = new GridBagConstraints();
         gbc_lblStuCounts.insets = new Insets(0, 0, 5, 0);
         gbc_lblStuCounts.gridx = 1;
@@ -265,7 +265,7 @@ public class MainFrame extends JFrame {
         gbc_lblNewLabel_2.gridy = 2;
         panelInfo.add(lblNewLabel_2, gbc_lblNewLabel_2);
 
-        lblStartDate = new JLabel("");
+        lblStartDate = new JLabel("New label");
         var gbc_lblStartDate = new GridBagConstraints();
         gbc_lblStartDate.insets = new Insets(0, 0, 5, 0);
         gbc_lblStartDate.gridx = 1;
@@ -280,7 +280,7 @@ public class MainFrame extends JFrame {
         gbc_lblNewLabel_3.gridy = 3;
         panelInfo.add(lblNewLabel_3, gbc_lblNewLabel_3);
 
-        lblEndDate = new JLabel("");
+        lblEndDate = new JLabel("New label");
         var gbc_lblEndDate = new GridBagConstraints();
         gbc_lblEndDate.insets = new Insets(0, 0, 5, 0);
         gbc_lblEndDate.gridx = 1;
@@ -295,7 +295,7 @@ public class MainFrame extends JFrame {
         gbc_lblNewLabel_4.gridy = 4;
         panelInfo.add(lblNewLabel_4, gbc_lblNewLabel_4);
 
-        lblCourseName = new JLabel("");
+        lblCourseName = new JLabel("New label");
         var gbc_lblCourseName = new GridBagConstraints();
         gbc_lblCourseName.gridx = 1;
         gbc_lblCourseName.gridy = 4;
@@ -319,7 +319,6 @@ public class MainFrame extends JFrame {
         panelAction.add(lblInputGradeID, gbc_lblInputGradeID);
         
         txtInputGradeID = new JTextField();
-        txtInputGradeID.setText("0");
         GridBagConstraints gbc_txtInputGradeID = new GridBagConstraints();
         gbc_txtInputGradeID.anchor = GridBagConstraints.WEST;
         gbc_txtInputGradeID.insets = new Insets(0, 0, 5, 0);
@@ -441,38 +440,19 @@ public class MainFrame extends JFrame {
   }
     
     protected void btnUpdateScoreActionPerformed(ActionEvent e) {
-    	
-    	if(helper.Valid.checkRegex2(Regex.INTNUM, txtInputGradeID.getText())) {
-    		var gradeid =  Integer.parseInt(txtInputGradeID.getText());
-    		var conn = ConnectDB.getCon();
-    		if(helper.Valid.checkScoreExists(conn, gradeid)) {
-//    			JOptionPane.showMessageDialog(null, "Grade ID exists");
-    			var f = UpdateGrade.getInstance();
-    			f.setGradeId(gradeid);
-    			if(!f.isVisible()) {
-    				f.setVisible(true);
-    				desktopPane.add(f);
-    				
-    				 // Add an internal frame listener to perform actions when the frame is closed
-                    f.addInternalFrameListener(new javax.swing.event.InternalFrameAdapter() {
-                        @Override
-                        public void internalFrameClosed(javax.swing.event.InternalFrameEvent e) {
-                            // Reset the table when the frame is closed
-                        	tablePageScoList.resetTable();
-                        }
-                    });
-    			}
-    			 f.toFront(); 
-    		        f.moveToFront(); 
-    			
-    		}else {
-    			JOptionPane.showMessageDialog(null, "Grade ID doesn't exists");
-    		}
-    	}else{
-    		JOptionPane.showMessageDialog(null, "Invalid Input");
-    	};
-		
-		
+		var gradeid =  Integer.parseInt(txtInputGradeID.getText());
+		var conn = ConnectDB.getCon();
+		if(helper.Valid.checkScoreExists(conn, gradeid)) {
+//			JOptionPane.showMessageDialog(null, "Grade ID exists");
+			var f = UpdateGrade.getInstance();
+			if(!f.isVisible()) {
+				f.setVisible(true);
+				desktopPane.add(f);
+			}			
+			
+		}else {
+			JOptionPane.showMessageDialog(null, "Grade ID doesn't exists");
+		}
 		
 	}
 

@@ -10,6 +10,24 @@ import entity.Student;
 import service.ConnectDB;
 
 public class GradeDao {
+	
+	public double calcAvg(double midScore, double finalScore) {
+		var average = Math.round((midScore + finalScore * 2) / 3.0 * 100.0) / 100.0;
+        
+		return average;
+		
+	}
+	
+	public Double calcAveStrInput(String midScore, String finalScore) {
+		var mid = Double.parseDouble(midScore);
+		var fin = Double.parseDouble(finalScore);
+		var average = Math.round((mid + fin * 2) / 3.0 * 100.0) / 100.0;
+        
+		return average;
+		
+		
+	}
+	
 	public List<Grade> selectPaging(int currentpage, int numberofrows) {
 		List<Grade> list = new ArrayList<>();
 
@@ -31,6 +49,7 @@ public class GradeDao {
 
 		return list;
 	}
+	
 
 	public void insert(Grade grade, Student stu, int empId) {
 		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call createGrade(?,?,?,?)}")) {
@@ -40,20 +59,7 @@ public class GradeDao {
 			cs.setInt(4, empId);
 			if (cs.executeUpdate() > 0) {
 				JOptionPane.showMessageDialog(null, "Grade Successfully Added", "Message",
-				    JOptionPane.INFORMATION_MESSAGE);
-			};
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void update(Grade grade) {
-		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call updateGrade(?,?,?)}")) {
-			cs.setDouble(1, grade.getMidScore());
-			cs.setDouble(2, grade.getFinalScore());
-			cs.setInt(3, grade.getGradeId());
-			if (cs.executeUpdate() > 0) {
-				JOptionPane.showMessageDialog(null, "Grade Successfully Updated", "Message", JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane.INFORMATION_MESSAGE);
 			}
 			;
 		} catch (Exception e) {
@@ -61,9 +67,27 @@ public class GradeDao {
 		}
 	}
 
-	public List<Grade> select(){
+	public void update(Grade grade) {
+		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call updateGrade(?,?,?,?)}")) {
+			cs.setDouble(1, grade.getMidScore());
+			cs.setDouble(2, grade.getFinalScore());
+			cs.setDouble(3, grade.getAvgScore());
+			cs.setInt(4, grade.getGradeId());
+			if (cs.executeUpdate() > 0) {
+				JOptionPane.showMessageDialog(null, "Grade Successfully Updated", "Message",
+						JOptionPane.INFORMATION_MESSAGE);
+			}
+			;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public List<Grade> select() {
 		List<Grade> list = new ArrayList<>();
-		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call selectGrade}"); var rs = cs.executeQuery();) {
+		try (var conn = ConnectDB.getCon();
+				var cs = conn.prepareCall("{call selectGrade}");
+				var rs = cs.executeQuery();) {
 			while (rs.next()) {
 				var grade = new Grade();
 				grade.setGradeId(rs.getInt("gradeId"));
@@ -77,15 +101,26 @@ public class GradeDao {
 		return list;
 	}
 
-	public void delete(Grade grade) {
-		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call deleteGrade(?)}");) {
-			cs.setInt(1, grade.getGradeId());
-			if (cs.executeUpdate() > 0) {
-				JOptionPane.showMessageDialog(null, "Delete successfully", "Message", JOptionPane.INFORMATION_MESSAGE);
+	public Grade selectGradebyId(int id) {
+		Grade grade = new Grade();
+		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call selectGradeByID(?)}");
+				
+			)
+		{	
+			cs.setInt(1, id);
+			var rs = cs.executeQuery();
+			while(rs.next()){
+				grade.setGradeId(rs.getInt("gradeId"));
+				grade.setMidScore(rs.getDouble("midScore"));
+				grade.setFinalScore(rs.getDouble("finalScore"));
+				grade.setAvgScore(rs.getDouble("avgScore"));
 			}
-			;
 		} catch (Exception e) {
 			e.printStackTrace();
+
 		}
+
+		return grade;
 	}
+
 }

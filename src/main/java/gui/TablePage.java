@@ -2,15 +2,23 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
+
+import dao.EnrollStuDao;
+import gui.Paging.CountFetcher;
 
 public class TablePage extends JPanel implements Paging.PagingListener {
 
@@ -22,12 +30,14 @@ public class TablePage extends JPanel implements Paging.PagingListener {
     private DefaultTableModel tableModel;
     private String[] columnNames;
     private Map<Integer, Class<?>> columnTypes = new HashMap<>();
+	
 
     // Functional interfaces for dynamic data and count fetching
     public interface DataFetcher {
     	List<Object[]> fetchData(Integer currentPage, Integer numberOfRows);
-//    	abstract void fetchDao();
+
     }
+
 
 
     public TablePage(DataFetcher dataFetcher, Paging.CountFetcher countFetcher) {
@@ -64,7 +74,7 @@ public class TablePage extends JPanel implements Paging.PagingListener {
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.setRowSorter(new TableRowSorter<>(tableModel)); // Enables sorting
         add(new JScrollPane(table), BorderLayout.CENTER);
-
+       
         // Fetch initial data and total pages
 
         onPageChanged(1, paging.getNumberOfRows());  // Load the first page of data
@@ -74,7 +84,10 @@ public class TablePage extends JPanel implements Paging.PagingListener {
 //    abstract void tableMousePressed(MouseEvent e);
 //    abstract void deleteRow(ActionEvent actionevent1);
 
-    /**
+
+
+
+	/**
      * Event triggered when the page or number of rows changes.
      */
     @Override
@@ -102,6 +115,11 @@ public class TablePage extends JPanel implements Paging.PagingListener {
         paging.updateTotalRowsFromDao();
 //        onPageChanged(1, paging.getNumberOfRows());
         paging.onPageChanged(1, paging.getNumberOfRows());
+    }
+    
+    //Disble or Enable the ability to interact with table
+    public void setTableStatus(boolean status) {
+    	table.setRowSelectionAllowed(status);
     }
 
     /**
@@ -134,4 +152,6 @@ public class TablePage extends JPanel implements Paging.PagingListener {
 
 
     }
+    
+    
 }
