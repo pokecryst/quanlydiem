@@ -88,6 +88,7 @@ CREATE TABLE accounts
     accPass NVARCHAR(256) NOT NULL,
 	accType VARCHAR(50) NOT NULL,
     CreatedDate DATETIME DEFAULT GETDATE(),
+	accStatus BIT,
 	empId INT
 )
 GO
@@ -116,6 +117,9 @@ FOREIGN KEY(enrollId) REFERENCES enrollment(enrollId)
 ALTER TABLE accounts
 ADD CONSTRAINT FK_accounts_employee
 FOREIGN KEY(empId) REFERENCES employee(empId)
+
+ALTER TABLE accounts
+DROP CONSTRAINT FK_accounts_employee;
 
 --DEFAULT
 ALTER TABLE student
@@ -203,17 +207,92 @@ VALUES('2024-10-12', 10, 2)
 GO
 
 
-INSERT INTO accounts(accEmail, accPass, accType, empId)
-VALUES('admin@edu.com', '123', 'ADMIN', 1)
+INSERT INTO accounts(accEmail, accPass, accType, accStatus, empId)
+VALUES('admin@edu.com', '123', 'admin', 0, 1)
 GO
-INSERT INTO accounts(accEmail, accPass, accType, empId)
-VALUES('sta@edu.com', '123', 'STAFF', 2)
+INSERT INTO accounts(accEmail, accPass, accType, accStatus, empId)
+VALUES('sta@edu.com', '123', 'staff', 0, 2)
 GO
-INSERT INTO accounts(accEmail, accPass, accType, empId)
-VALUES('tea@edu.com', '123', 'TEACHER', 3)
+INSERT INTO accounts(accEmail, accPass, accType, accStatus, empId)
+VALUES('tea@edu.com', '123', 'teacher', 1, 3)
 GO
 
 --stored procedure
+
+--accounts
+--- store validate account---
+CREATE OR ALTER PROCEDURE ValidateAccount
+    @accEmail NVARCHAR(255),
+    @accPass NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (SELECT 1 FROM Accounts WHERE accEmail = @accEmail AND accPass = @accPass)
+		SELECT 1 AS IsValid;
+        
+END
+GO
+--- store select account ---
+CREATE OR ALTER PROC selectAcc
+AS
+BEGIN
+	SELECT * FROM accounts;
+END
+GO
+
+CREATE OR ALTER PROC selectOneAcc
+@accEmail NVARCHAR(100)
+AS
+BEGIN
+	SELECT * FROM accounts
+	WHERE accEmail = @accEmail
+END
+GO
+
+---- store update account ----
+CREATE OR ALTER PROCEDURE updateAcc
+    @accId INT,
+    @accMail VARCHAR(100),
+    @accPass VARCHAR(255),
+    @accType VARCHAR(50),
+    @accCreatedDate DATE,
+    @accStatus BIT,
+    @empId INT
+AS
+BEGIN
+    UPDATE accounts
+    SET accEmail = @accMail,
+        accPass = @accPass,
+        accType = @accType,
+        CreatedDate = @accCreatedDate,
+        accStatus = @accStatus,
+        empId = @empId
+    WHERE accId = @accId;
+END
+GO
+---store add account
+CREATE OR ALTER PROCEDURE insertAcc
+@accMail VARCHAR(100),
+@accPass VARCHAR(255),
+@acctype VARCHAR(50),
+@accStatus BIT,
+@empId INT
+AS
+BEGIN
+	INSERT INTO accounts(accEmail, accPass, accType, accStatus, empId)
+	VALUES (@accMail, @accPass, @accType, @accStatus, @empId)
+END
+GO
+
+-----------employee store (bk)------------
+CREATE OR ALTER PROCEDURE getEmpIdsWithoutAccount
+AS
+BEGIN
+    SELECT empId FROM employee WHERE empId NOT IN (SELECT empId FROM accounts);
+END
+GO
+
 --student
 
 
@@ -632,6 +711,26 @@ BEGIN
 END
 GO
 pagingGradeStu 1, 5, 1
+
+--Account
+CREATE OR ALTER PROC pagingAccount
+@currentpage INT, @numberofrows INT
+AS
+BEGIN
+	SELECT * FROM accounts
+	ORDER BY accId
+	OFFSET ((@currentpage - 1) * @numberofrows) ROWS
+	FETCH NEXT @numberofrows ROWS ONLY
+END
+GO
+
+CREATE OR ALTER PROC countAccount
+AS
+BEGIN
+	SELECT COUNT(accId) total FROM accounts
+END
+GO
+
 
 
 	--count something

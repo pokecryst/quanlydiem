@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -30,6 +31,7 @@ public class TablePage extends JPanel implements Paging.PagingListener {
     private DefaultTableModel tableModel;
     private String[] columnNames;
     private Map<Integer, Class<?>> columnTypes = new HashMap<>();
+    private Map<Integer, Consumer<Object>> fieldMappings;
 	
 
     // Functional interfaces for dynamic data and count fetching
@@ -73,6 +75,11 @@ public class TablePage extends JPanel implements Paging.PagingListener {
         table = new JTable(tableModel);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.setRowSorter(new TableRowSorter<>(tableModel)); // Enables sorting
+        table.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e,  JTable table, Map<Integer, Consumer<Object>> fieldMappings) {
+				tableMouseClicked(e, table, fieldMappings);
+			}
+		});
         add(new JScrollPane(table), BorderLayout.CENTER);
        
         // Fetch initial data and total pages
@@ -96,6 +103,16 @@ public class TablePage extends JPanel implements Paging.PagingListener {
     		var data = dataFetcher.fetchData(currentPage, numberOfRows);
         updateTable(data);
 
+    }
+    
+    //click
+    
+    protected void tableMouseClicked(MouseEvent e, JTable table, Map<Integer, Consumer<Object>> fieldMappings) {
+        int row = table.getSelectedRow();
+        fieldMappings.forEach((columnIndex, action) -> {
+            Object value = table.getValueAt(row, columnIndex);
+            action.accept(value);
+        });
     }
 
 
