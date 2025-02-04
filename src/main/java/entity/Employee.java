@@ -1,24 +1,27 @@
 package entity;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 public class Employee {
 	private int empId;
 	private String empName;
-	private boolean empGender;
-	private Date empDob;
+	private Boolean empGender;
+	private LocalDate empDob;
+	private String empPhone;
 	private String empAddress;
-	private Date empHireDate;
+	private LocalDate empHireDate;
 	private String empImage;
 
 	public Employee() {};
-	public Employee(int empId, String empName, boolean empGender, Date empDob, String empAddress, Date empHireDate,
+	public Employee(int empId, String empName, Boolean empGender, LocalDate empDob, String empPhone, String empAddress, LocalDate empHireDate,
 	    String empImage) {
 		super();
 		this.empId       = empId;
 		this.empName     = empName;
 		this.empGender   = empGender;
 		this.empDob      = empDob;
+		this.empPhone    = empPhone;
 		this.empAddress  = empAddress;
 		this.empHireDate = empHireDate;
 		this.empImage    = empImage;
@@ -40,19 +43,21 @@ public class Employee {
 		this.empName = empName;
 	}
 
-	public boolean isEmpGender() {
+	public Boolean isEmpGender() {
 		return empGender;
 	}
-
-	public void setEmpGender(boolean empGender) {
+	
+	
+	
+	public void setEmpGender(Boolean empGender) {
 		this.empGender = empGender;
 	}
 
-	public Date getEmpDob() {
+	public LocalDate getEmpDob() {
 		return empDob;
 	}
 
-	public void setEmpDob(Date empDob) {
+	public void setEmpDob(LocalDate empDob) {
 		this.empDob = empDob;
 	}
 
@@ -64,11 +69,11 @@ public class Employee {
 		this.empAddress = empAddress;
 	}
 
-	public Date getEmpHireDate() {
+	public LocalDate getEmpHireDate() {
 		return empHireDate;
 	}
 
-	public void setEmpHireDate(Date empHireDate) {
+	public void setEmpHireDate(LocalDate empHireDate) {
 		this.empHireDate = empHireDate;
 	}
 
@@ -79,12 +84,22 @@ public class Employee {
 	public void setEmpImage(String empImage) {
 		this.empImage = empImage;
 	}
+	
+	
+	public String getEmpPhone() {
+		return empPhone;
+	}
+	public void setEmpPhone(String empPhone) {
+		this.empPhone = empPhone;
+	}
 
 	@Override
 	public String toString() {
 		return "Employee [empId=" + empId + ", empName=" + empName + ", empGender=" + empGender + ", empDob=" + empDob
-		    + ", empAddress=" + empAddress + ", empHireDate=" + empHireDate + ", empImage=" + empImage + "]";
+				+ ", empPhone=" + empPhone + ", empAddress=" + empAddress + ", empHireDate=" + empHireDate
+				+ ", empImage=" + empImage + "]";
 	}
+
 
 
 
