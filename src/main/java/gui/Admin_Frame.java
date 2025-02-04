@@ -272,7 +272,8 @@ public class Admin_Frame extends JFrame {
 		chckbxActive_1 = new JCheckBox("UnActive");
 		chckbxActive_1.setBounds(124, 197, 196, 30);
 		panel_3.add(chckbxActive_1);
-
+		
+		//Start paging
 		tablePageAccount = new TablePage(this::loadDataAccount, this::countTotalRows);
 		tablePageAccount.setColumnNamesAndTypes(
 	            new String[]{
@@ -305,12 +306,13 @@ public class Admin_Frame extends JFrame {
 			    5, value -> txtEmpId.setText(value.toString()),
 			    6, value -> chckbxActive.setSelected((boolean) value)
 			);
-		tablePageAccount.addMouseListener(new MouseAdapter() {
-		    @Override
-		    public void mouseClicked(MouseEvent e) {
-		        tableMouseClicked(e, tablePageAccount, accountsMappings);
-		    }
-		});
+//		tablePageAccount.addMouseListener(new MouseAdapter() {
+//		    @Override
+//		    public void mouseClicked(MouseEvent e) {
+//		        tableMouseClicked(e, tablePageAccount, accountsMappings);
+//		    }
+//		});
+		//End paging
 
 		tablePageAccount.setBounds(10, 428, 843, 192);
 		panel_1.add(tablePageAccount);
