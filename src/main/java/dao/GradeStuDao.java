@@ -1,5 +1,6 @@
 package dao;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class GradeStuDao {
 				var gradestu  = new GradeStu();
 				gradestu.setEnrollId(rs.getInt("enrollId"));
 				gradestu.setGradeId(rs.getInt("gradeId"));
+				gradestu.setStuId(rs.getInt("stuId"));
 				gradestu.setStuName(rs.getString("stuName"));
 				gradestu.setMidScore(rs.getDouble("midScore"));
 				gradestu.setFinalScore(rs.getDouble("finalScore"));
@@ -37,7 +39,19 @@ public class GradeStuDao {
 
 
 		return list;
-
-
+	}
+	
+	public String selectStuNameById(int id) {
+		var stuName = "";
+		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call selectStuNameByID(?)}")) {
+			cs.setInt(1, id);
+			var rs = cs.executeQuery();
+			while (rs.next()) {
+				stuName = rs.getString("stuName");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return stuName;
 	}
 }

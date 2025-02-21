@@ -89,20 +89,26 @@ public class Login_Frame extends JFrame {
           JOptionPane.showMessageDialog(this, "Welcome Back my Partner");
 //          var acc = new Account();
           var account = accountDao.selectOneAccount(username);
-          if(account.getAccType() == Account.AccType.admin) {
+          if(account.getRoleId() == 1) {
         	  var AF = new Admin_Frame();
               AF.setVisible(true);
               AF.setLocationRelativeTo(null);
               dispose();
-          }else if(account.getAccType() == Account.AccType.teacher) {
-        	  var MF = new MainFrame();
+          }else if(account.getRoleId() == 2) {
+        	  var MF = new TestFrame(account);
+        	  MF.setVisible(true);
+              MF.setLocationRelativeTo(null);
+              dispose();
+          }else {
+        	  var MF = new TestFrame(account);
         	  MF.setVisible(true);
               MF.setLocationRelativeTo(null);
               dispose();
           }
           
       } else {
-          JOptionPane.showMessageDialog(this, "Login failed");
+    	 
+        JOptionPane.showMessageDialog(this, "Login failed");
       }
   	}
 }

@@ -1,11 +1,11 @@
 ﻿USE master
 GO
 
-DROP DATABASE IF EXISTS QUANLYDIEM2
-CREATE DATABASE QUANLYDIEM2
+DROP DATABASE IF EXISTS QUANLYDIEM
+CREATE DATABASE QUANLYDIEM
 GO
 
-USE QUANLYDIEM2
+USE QUANLYDIEM3
 GO
 
 DROP TABLE IF EXISTS student
@@ -32,7 +32,8 @@ CREATE TABLE employee
 	empPhone VARCHAR(10),
 	empAddress NVARCHAR(200),
 	empHireDate DATE DEFAULT GETDATE(),
-	empImage VARCHAR(300) NOT NULL
+	empImage VARCHAR(300) NOT NULL,
+	roleId INT
 )
 GO
 
@@ -86,10 +87,19 @@ CREATE TABLE accounts
 	accId INT IDENTITY PRIMARY KEY,
 	accEmail NVARCHAR(100) NOT NULL UNIQUE,
     accPass NVARCHAR(256) NOT NULL,
-	accType VARCHAR(50) NOT NULL,
     CreatedDate DATETIME DEFAULT GETDATE(),
 	accStatus BIT,
+	roleId INT,
 	empId INT
+	
+)
+GO
+
+DROP TABLE IF EXISTS roles 
+CREATE TABLE roles
+(
+	roleId INT IDENTITY PRIMARY KEY,
+	roleName VARCHAR(50)
 )
 GO
 
@@ -119,7 +129,12 @@ ADD CONSTRAINT FK_accounts_employee
 FOREIGN KEY(empId) REFERENCES employee(empId)
 
 ALTER TABLE accounts
-DROP CONSTRAINT FK_accounts_employee;
+ADD CONSTRAINT FK_accounts_roles
+FOREIGN KEY(roleId) REFERENCES roles(roleId)
+
+ALTER TABLE employee
+ADD CONSTRAINT FK_employee_roles
+FOREIGN KEY (roleId) REFERENCES roles(roleId)
 
 --DEFAULT
 ALTER TABLE student
@@ -133,11 +148,21 @@ VALUES( 'StudentName', 'address', '2013-10-09', 'stu@gmail.com', 1, '0039939830'
 GO 10
 
 createStu 'StudentName', 1, '2013-10-09', 'stu@gmail.com', '0039939830', 'address', 'images/a.jpg'
-GO 10
+GO 
 
 INSERT INTO employee(empName, empAddress, empDob, empGender, empPhone, empImage)
 VALUES('Name', 'address', '1999-10-24', 0, '0039939820', 'images/a.jpg')
 GO 10
+
+INSERT INTO roles(roleName)
+VALUES('admin')
+GO
+INSERT INTO roles(roleName)
+VALUES('teacher')
+GO
+INSERT INTO roles(roleName)
+VALUES('staff')
+GO
 
 
 INSERT INTO course(courseName, courseDesc, courseDuration)
@@ -207,17 +232,26 @@ VALUES('2024-10-12', 10, 2)
 GO
 
 
-INSERT INTO accounts(accEmail, accPass, accType, accStatus, empId)
-VALUES('admin@edu.com', '123', 'admin', 0, 1)
+INSERT INTO accounts(accEmail, accPass, roleId, accStatus, empId)
+VALUES('admin@edu.com', '123', 1, 0, 1)
 GO
-INSERT INTO accounts(accEmail, accPass, accType, accStatus, empId)
-VALUES('sta@edu.com', '123', 'staff', 0, 2)
+INSERT INTO accounts(accEmail, accPass, roleId, accStatus, empId)
+VALUES('sta@edu.com', '123', 3, 0, 2)
 GO
-INSERT INTO accounts(accEmail, accPass, accType, accStatus, empId)
-VALUES('tea@edu.com', '123', 'teacher', 1, 3)
+INSERT INTO accounts(accEmail, accPass, roleId, accStatus, empId)
+VALUES('tea@edu.com', '123', 2, 1, 3)
 GO
 
 --stored procedure
+--roles
+	--R
+CREATE OR ALTER PROCEDURE selectRoles
+AS
+BEGIN
+	SELECT * FROM roles
+END
+GO
+
 
 --accounts
 --- store validate account---
@@ -255,7 +289,7 @@ CREATE OR ALTER PROCEDURE updateAcc
     @accId INT,
     @accMail VARCHAR(100),
     @accPass VARCHAR(255),
-    @accType VARCHAR(50),
+    @roleId INT,
     @accCreatedDate DATE,
     @accStatus BIT,
     @empId INT
@@ -264,7 +298,7 @@ BEGIN
     UPDATE accounts
     SET accEmail = @accMail,
         accPass = @accPass,
-        accType = @accType,
+        roleId = @roleId,
         CreatedDate = @accCreatedDate,
         accStatus = @accStatus,
         empId = @empId
@@ -275,15 +309,17 @@ GO
 CREATE OR ALTER PROCEDURE insertAcc
 @accMail VARCHAR(100),
 @accPass VARCHAR(255),
-@acctype VARCHAR(50),
+@roleId INT,
 @accStatus BIT,
 @empId INT
 AS
 BEGIN
-	INSERT INTO accounts(accEmail, accPass, accType, accStatus, empId)
-	VALUES (@accMail, @accPass, @accType, @accStatus, @empId)
+	INSERT INTO accounts(accEmail, accPass, roleId, accStatus, empId)
+	VALUES (@accMail, @accPass, @roleId, @accStatus, @empId)
 END
 GO
+
+insertAcc 'tea2@edu.com', 123, 2, True, 4
 
 -----------employee store (bk)------------
 CREATE OR ALTER PROCEDURE getEmpIdsWithoutAccount
@@ -292,6 +328,8 @@ BEGIN
     SELECT empId FROM employee WHERE empId NOT IN (SELECT empId FROM accounts);
 END
 GO
+
+getEmpIdsWithoutAccount 
 
 --student
 
@@ -313,6 +351,17 @@ BEGIN
 	SELECT * FROM student
 END
 GO
+
+CREATE OR ALTER PROC selectStuNameByID
+@stuId INT
+AS
+BEGIN
+	SELECT stuName FROM student
+	WHERE stuId = @stuId
+END
+GO
+
+selectStuNameByID 1
 
 
 	--U
@@ -352,11 +401,12 @@ CREATE OR ALTER PROC createEmp
 @empDob DATE, 
 @empPhone VARCHAR(10), 
 @empAddress NVARCHAR(200), 
-@empImage VARCHAR(300)
+@empImage VARCHAR(300),
+@roleId INT
 AS
 BEGIN
-    INSERT INTO employee (empName, empGender, empDob, empPhone, empAddress, empImage)
-    VALUES (@empName, @empGender, @empDob, @empPhone, @empAddress, @empImage)
+    INSERT INTO employee (empName, empGender, empDob, empPhone, empAddress, empImage, roleId)
+    VALUES (@empName, @empGender, @empDob, @empPhone, @empAddress, @empImage, @roleId)
 END
 GO
 	--R
@@ -367,6 +417,32 @@ BEGIN
 END
 GO
 
+CREATE OR ALTER PROC selectEmpByID
+@empId INT
+AS
+BEGIN
+    SELECT * FROM employee
+	WHERE empId = @empId
+END
+GO
+
+CREATE OR ALTER PROC selectTeacher
+AS
+BEGIN
+    SELECT * FROM employee
+	WHERE roleId = 2
+END
+GO
+
+CREATE OR ALTER PROC selectEmpNameById
+@empId INT
+AS
+BEGIN
+	SELECT empName FROM employee
+	WHERE empId = @empId
+END
+GO
+
 	--U
 CREATE OR ALTER PROC updateEmp
 @empName NVARCHAR(50), 
@@ -374,7 +450,8 @@ CREATE OR ALTER PROC updateEmp
 @empDob DATE, 
 @empPhone VARCHAR(10), 
 @empAddress NVARCHAR(200), 
-@empImage VARCHAR(300), 
+@empImage VARCHAR(300),
+@roleId INT,
 @empId INT
 AS
 BEGIN
@@ -384,7 +461,8 @@ BEGIN
         empDob = @empDob,
         empPhone = @empPhone,
         empAddress = @empAddress,
-        empImage = @empImage
+        empImage = @empImage,
+		roleId = @roleId
     WHERE empId = @empId
 END
 GO
@@ -488,14 +566,34 @@ BEGIN
 END
 GO
 
+CREATE OR ALTER PROC selectClassByID
+@classId INT
+AS
+BEGIN
+	SELECT * FROM class
+	WHERE classId = @classId
+END
+GO
+
+CREATE OR ALTER PROC selectClassesByTeachID
+@empId INT
+AS
+BEGIN
+	SELECT * FROM class
+	WHERE empId =@empId
+END
+GO
+
+
+
 	--U
 CREATE OR ALTER PROC updateClass
-    @classId INT,
     @className NVARCHAR(100), 
     @startDate DATE, 
     @endDate DATE, 
     @courseId INT, 
-    @empId INT
+    @empId INT,
+	@classId INT
 AS
 BEGIN
     UPDATE class
@@ -601,7 +699,7 @@ BEGIN
 	WHERE gradeId = @gradeId
 END
 GO
-selectGradeByID 1
+
 	--U
 CREATE OR ALTER PROC updateGrade
     @midScore FLOAT,
@@ -628,8 +726,16 @@ BEGIN
 END
 GO
 
---Universal procedure
-	--paging
+CREATE OR ALTER PROC deleteGradeByEnrollID
+    @enrollId INT
+AS
+BEGIN
+    DELETE FROM grade
+    WHERE enrollId = @enrollId
+END
+GO
+
+--PAGING
 
 CREATE OR ALTER PROC paging
     @query NVARCHAR(MAX),
@@ -682,7 +788,73 @@ BEGIN
 	FETCH NEXT @numberofrows ROWS ONLY;
 END
 GO
+pagingStudentList 1, 10, 1
 
+CREATE OR ALTER PROC NotStudentList
+    @classId INT
+AS
+BEGIN
+    SELECT s.stuId, s.stuName, s.stuDob, s.stuAddress, s.stuEmail, s.stuPhone
+    FROM student s
+    WHERE NOT EXISTS (
+        SELECT 1 FROM enrollment e
+        WHERE e.stuId = s.stuId AND e.classId = @classId
+    )
+    ORDER BY s.stuName;
+END
+GO
+NotStudentList 1
+
+
+CREATE OR ALTER PROC pagingStudentNotInClass
+@currentpage INT, @numberofrows INT, @classId INT
+AS
+BEGIN
+	 SELECT *
+    FROM student s
+    WHERE NOT EXISTS (
+        SELECT 1 FROM enrollment e
+        WHERE e.stuId = s.stuId AND e.classId = @classId
+    )
+    ORDER BY s.stuId
+	OFFSET ((@currentpage - 1) * @numberofrows) ROWS
+	FETCH NEXT @numberofrows ROWS ONLY;
+END
+GO
+
+pagingStudentNotInClass 1, 10, 1
+
+CREATE OR ALTER PROC countStudentNotInClass
+@classId INT
+AS
+BEGIN
+	SELECT COUNT(s.stuId) total
+	FROM student s
+	LEFT JOIN enrollment e ON s.stuId = e.stuId
+	LEFT JOIN class c ON e.classId = c.classId
+	WHERE c.classId != @classId
+	OR c.classId IS NULL
+END
+GO
+
+
+
+--Grade
+CREATE OR ALTER PROC pagingGradeStu
+@currentpage INT, @numberofrows INT, @classId INT
+AS
+BEGIN
+	SELECT student.stuId, student.stuName, grade.midScore, grade.finalScore, grade.avgScore, grade.gradeId, grade.enrollId FROM enrollment
+	JOIN student ON enrollment.stuId = student.stuId
+	JOIN grade ON enrollment.enrollId = grade.enrollId
+	WHERE enrollment.classId = @classId
+	ORDER BY student.stuName
+	OFFSET ((@currentpage - 1) * @numberofrows) ROWS
+	FETCH NEXT @numberofrows ROWS ONLY
+END
+GO
+
+--countStudentList use for both paging GradeStu and studentList
 CREATE OR ALTER PROC countStudentList
 @classId INT
 AS
@@ -696,21 +868,8 @@ END
 GO
 
 
---Grade
-CREATE OR ALTER PROC pagingGradeStu
-@currentpage INT, @numberofrows INT, @classId INT
-AS
-BEGIN
-	SELECT student.stuName, grade.midScore, grade.finalScore, grade.avgScore, grade.gradeId, grade.enrollId FROM enrollment
-	JOIN student ON enrollment.stuId = student.stuId
-	JOIN grade ON enrollment.enrollId = grade.enrollId
-	WHERE enrollment.classId = @classId
-	ORDER BY student.stuName
-	OFFSET ((@currentpage - 1) * @numberofrows) ROWS
-	FETCH NEXT @numberofrows ROWS ONLY
-END
-GO
-pagingGradeStu 1, 5, 1
+
+--pagingGradeStu 1, 5, 1
 
 --Account
 CREATE OR ALTER PROC pagingAccount

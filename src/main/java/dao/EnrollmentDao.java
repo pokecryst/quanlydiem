@@ -25,6 +25,33 @@ public class EnrollmentDao {
 
 		return list;
 	}
+	
+	public void delete(int enrollId) {
+		try (var conn = ConnectDB.getCon();
+			var cs = conn.prepareCall("{call deleteEnrollment(?)}");
+			var cs2 = conn.prepareCall("{call deleteGradeByEnrollId(?)}");
+		) {
+			cs.setInt(1, enrollId);
+			cs2.setInt(1, enrollId);
+			cs2.executeUpdate();
+			cs.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void add(int stuId, int classId) {
+		try (var conn = ConnectDB.getCon();
+			var cs = conn.prepareCall("{call createEnrollmentAGrade(?, ?)}");
+			) {
+			cs.setInt(1, stuId);
+			cs.setInt(2, classId);
+			cs.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	
+	}
 
 
 }

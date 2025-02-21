@@ -57,5 +57,21 @@ public class Valid {
 		}
 		return check;
 	}
+	
+	public static boolean checkClassExists(Connection conn, int id) {
+		var check = false;
+		try (var cs = conn.prepareCall("{call selectClassByID(?)}")){
+			cs.setInt(1, id);
+			try (var rs = cs.executeQuery()) {
+				if (rs.next()) {
+					check = true;
+				}
+			}
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return check;
+	}
 
 }

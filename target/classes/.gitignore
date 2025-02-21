@@ -1,4 +1,6 @@
-/gui/
-/entity/
+/helper/
 /dao/
+/entity/
 /META-INF/
+/sub/
+/gui/

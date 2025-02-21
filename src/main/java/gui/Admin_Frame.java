@@ -291,27 +291,32 @@ public class Admin_Frame extends JFrame {
 	                    6, Boolean.class
 	                )
 	            );
+//		Map<Integer, Consumer<Object>> accountsMappings = Map.of(
+//			    0, value -> textID.setText(value.toString()),
+//			    1, value -> textEmail.setText(value.toString()),
+//			    2, value -> passwordField.setText(value.toString()),
+//			    3, value -> cbbType.setSelectedItem(value),
+//			    4, value -> {
+//			        try {
+//			            dateChooser.setDate(new java.text.SimpleDateFormat("yyyy-MM-dd").parse(value.toString()));
+//			        } catch (java.text.ParseException e1) {
+//			            e1.printStackTrace();
+//			        }
+//			    },
+//			    5, value -> txtEmpId.setText(value.toString()),
+//			    6, value -> chckbxActive.setSelected((boolean) value)
+//			);
 		Map<Integer, Consumer<Object>> accountsMappings = Map.of(
-			    0, value -> textID.setText(value.toString()),
-			    1, value -> textEmail.setText(value.toString()),
-			    2, value -> passwordField.setText(value.toString()),
+			    0, value -> helper.FieldsMapper.setTextField(textID, value),
+			    1, value -> helper.FieldsMapper.setTextField(textEmail, value),
+			    2, value -> helper.FieldsMapper.setTextField(passwordField, value),
 			    3, value -> cbbType.setSelectedItem(value),
-			    4, value -> {
-			        try {
-			            dateChooser.setDate(new java.text.SimpleDateFormat("yyyy-MM-dd").parse(value.toString()));
-			        } catch (java.text.ParseException e1) {
-			            e1.printStackTrace();
-			        }
-			    },
+			    4, value -> helper.FieldsMapper.setDateChooser(dateChooser, value),
 			    5, value -> txtEmpId.setText(value.toString()),
 			    6, value -> chckbxActive.setSelected((boolean) value)
 			);
-//		tablePageAccount.addMouseListener(new MouseAdapter() {
-//		    @Override
-//		    public void mouseClicked(MouseEvent e) {
-//		        tableMouseClicked(e, tablePageAccount, accountsMappings);
-//		    }
-//		});
+		tablePageAccount.setFieldMappings(accountsMappings);
+		
 		//End paging
 
 		tablePageAccount.setBounds(10, 428, 843, 192);

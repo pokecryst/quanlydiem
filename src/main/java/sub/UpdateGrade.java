@@ -122,6 +122,12 @@ public class UpdateGrade extends JInternalFrame {
 
 	}
 	
+	@Override
+	public void dispose() {
+	    instance = null;
+	    super.dispose();
+	}
+	
 	public void setGradeId(int gradeId) {
 		this.gradeId = gradeId;
 		 refreshGradeDetails();
@@ -150,16 +156,20 @@ public class UpdateGrade extends JInternalFrame {
 		 var midCheck = helper.Valid.checkRegex2(Regex.DOUBLE, txtGradeMid.getText()); 
 		 var finalCheck = helper.Valid.checkRegex2(Regex.DOUBLE, txtGradeFinal.getText());
 		 
-		 if(midCheck == true && finalCheck == true) {
+		 if(midCheck && finalCheck) {
 			 grade.setMidScore(Double.parseDouble(txtGradeMid.getText()));
 			 grade.setFinalScore(Double.parseDouble(txtGradeFinal.getText()));
 			 grade.setAvgScore(dao.calcAveStrInput(txtGradeMid.getText(), txtGradeFinal.getText()));
 			 grade.setGradeId(Integer.parseInt(txtGradeId.getText()));
 			 dao.update(grade);
+			 JOptionPane.showMessageDialog(null, "Grade Updated");
 			 instance.dispose();
+			
+			
 		 }else {
 			 JOptionPane.showMessageDialog(null, "Invalid Input");
 		 }
+		 
 		 
 		 
 		 

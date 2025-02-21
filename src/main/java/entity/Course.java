@@ -48,11 +48,23 @@ public class Course {
 		this.courseDuration = courseDuration;
 	}
 
+//	@Override
+//	public String toString() {
+//		return "Course [courseId=" + courseId + ", courseName=" + courseName + ", courseDesc=" + courseDesc
+//		    + ", courseDuration=" + courseDuration + "]";
+//	}
+	
 	@Override
 	public String toString() {
-		return "Course [courseId=" + courseId + ", courseName=" + courseName + ", courseDesc=" + courseDesc
-		    + ", courseDuration=" + courseDuration + "]";
+		return courseId + " - " + courseName;
 	}
-
+	
+	@Override
+	public boolean equals(Object obj) {
+	    if (this == obj) return true;
+	    if (obj == null || getClass() != obj.getClass()) return false;
+	    Course other = (Course) obj;
+	    return this.courseId == other.courseId;
+	}
 
 }

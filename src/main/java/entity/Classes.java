@@ -1,6 +1,6 @@
 package entity;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class Classes {
 	private int classId;
@@ -8,17 +8,23 @@ public class Classes {
 	private Date startDate;
 	private Date endDate;
 	private int courseId;
+	private int empId;
 
 	public Classes() {};
 
-	public Classes(int classId, String className, Date startDate, Date endDate, int courseId) {
+	
+
+	public Classes(int classId, String className, Date startDate, Date endDate, int courseId, int empId) {
 		super();
-		this.classId   = classId;
+		this.classId = classId;
 		this.className = className;
 		this.startDate = startDate;
-		this.endDate   = endDate;
+		this.endDate = endDate;
 		this.courseId = courseId;
+		this.empId = empId;
 	}
+
+
 
 	public int getClassId() {
 		return classId;
@@ -60,12 +66,30 @@ public class Classes {
 	public void setCourseId(int courseId) {
 		this.courseId = courseId;
 	}
+	
+	
+
+	public int getTeachId() {
+		return empId;
+	}
+
+
+
+	public void setTeachId(int empId) {
+		this.empId = empId;
+	}
+
+
 
 	@Override
 	public String toString() {
-		return "Class [classId=" + classId + ", className=" + className + ", startDate=" + startDate + ", endDate="
-		    + endDate + "]";
+		return "Classes [classId=" + classId + ", className=" + className + ", startDate=" + startDate + ", endDate="
+				+ endDate + ", courseId=" + courseId + ", teachId=" + empId + "]";
 	}
+
+
+
+	
 
 
 }

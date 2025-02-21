@@ -1,7 +1,9 @@
 
-package gui;
+package sub;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -35,12 +38,15 @@ import javax.swing.tree.DefaultTreeModel;
 
 import dao.ClassesDao;
 import dao.CourseDao;
+import dao.EmployeeDao;
 import dao.EnrollStuDao;
 import dao.GradeDao;
 import dao.GradeStuDao;
 import entity.Account;
 import entity.Classes;
+import entity.Grade;
 import entity.Student;
+import gui.TablePage;
 import helper.Regex;
 import service.ConnectDB;
 import sub.UpdateGrade;
@@ -52,7 +58,7 @@ import javax.swing.SwingConstants;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class MainFrame extends JFrame {
+public class MFrame_ClassManagePanel2 extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private JPanel contentQLD_GV;
@@ -84,50 +90,52 @@ public class MainFrame extends JFrame {
     private Integer totalRows = 0; // tổng số dòng (hàng) trong csdl
     private Double totalPage = 0.0; // tổng số trang
     private Account currentAcc = new Account();
+    private GradeStuDao gradestuDao = new GradeStuDao();
 
     private TablePage tablePageStuList;
     private TablePage tablePageScoList;
     private JPanel panelAction;
-    private JLabel lblInputGradeID;
+    private JPanel panelActionStaff;
+    private JLabel lblUpdateFor;
     private JTextField txtInputGradeID;
     private JButton btnUpdateScore;
+    private JLabel lblInputClassID;
+    private JTextField txtInputClassID;
+    private JButton btnManageClass;
+    private JPanel panelCard;
+    private JLabel lblClassID;
+    private JLabel lblClassID_2;
+    private JButton btnAddNewClass;
+    private JLabel lblAssignedTeacher;
+    private JLabel lblATeacherName;
+    
+    private DefaultMutableTreeNode root = new DefaultMutableTreeNode("Classes");
+    private JTextField txtStudent;
+    private JLabel lblMidScore;
+    private JTextField txtMidScore;
+    private JLabel lblFinalScore;
+    private JTextField txtFinalScore;
 
 
-    public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
-            try {
-                var frame = new MainFrame();
-                frame.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
+   
 
-    public MainFrame() {
-    	setTitle("Teacher Frame");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 800, 616);
-
-        menuBar = new JMenuBar();
-        setJMenuBar(menuBar);
-
-        mnNewMenu = new JMenu("File");
-        mnNewMenu.setMnemonic('F');
-        menuBar.add(mnNewMenu);
-
-        mntmTeacherAccInfo = new JMenuItem("Account Info");
-        mnNewMenu.add(mntmTeacherAccInfo);
+    public MFrame_ClassManagePanel2(Account acc) {
+    	currentAcc = acc;
+    	
+    	setLayout(new BorderLayout(0, 0));
+    	
+    	 // Create and add content panel
         contentQLD_GV = new JPanel();
-        contentQLD_GV.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-        setContentPane(contentQLD_GV);
+        contentQLD_GV.setBorder(null);
         contentQLD_GV.setLayout(new BorderLayout(0, 0));
-        
+        contentQLD_GV.setBackground(new Color(255, 255, 255));
+        add(contentQLD_GV);
+
+        // Desktop pane for split layout
         desktopPane = new JDesktopPane();
         contentQLD_GV.add(desktopPane, BorderLayout.CENTER);
-		desktopPane.setLayout(new BorderLayout(0, 0));
-
+        desktopPane.setLayout(new BorderLayout(0, 0));
+		
         splitPane = new JSplitPane();
         splitPane.setContinuousLayout(true);
         desktopPane.add(splitPane, BorderLayout.CENTER);
@@ -142,14 +150,7 @@ public class MainFrame extends JFrame {
         tree = new JTree();
         tree.addTreeSelectionListener(this::treeValueChanged);
 
-        var root = new DefaultMutableTreeNode("Classes");
-        var dao = new ClassesDao();
-        dao.selectAll().forEach(cla -> {
-            root.add(new DefaultMutableTreeNode(cla.getClassName()));
-        });
-
-        tree.setModel(new DefaultTreeModel(root));
-        scrollPane.setViewportView(tree);
+        populateTree();
 
         panelRight = new JPanel();
         splitPane.setRightComponent(panelRight);
@@ -193,18 +194,28 @@ public class MainFrame extends JFrame {
 
         tablePageScoList.setColumnNamesAndTypes(
             new String[]{
-                "No", "Name", "Mid Score", "Final Score",
+                "No", "Student ID", "Name", "Mid Score", "Final Score",
                 "Average Score", "Grade Id"
             },
             Map.of(
                 0, Integer.class,
-                1, String.class,
-                2, Double.class,
+                1, Integer.class,
+                2, String.class,
                 3, Double.class,
                 4, Double.class,
-                5, Integer.class
+                5, Double.class,
+                6, Integer.class
             )
         );
+        tablePageScoList.setColumnWidths(6);
+        tablePageScoList.setColumnVisibility(6, false);
+        Map<Integer, Consumer<Object>> accountsMappings = Map.of(
+        		1, value -> helper.FieldsMapper.setTextField(txtStudent, "StuID " + value + " - " + gradestuDao.selectStuNameById((int)value)),
+			    3, value -> helper.FieldsMapper.setTextField(txtMidScore, value),
+			    4, value -> helper.FieldsMapper.setTextField(txtFinalScore, value),
+        		6, value -> helper.FieldsMapper.setTextField(txtInputGradeID, value)	    
+			);
+        tablePageScoList.setFieldMappings(accountsMappings);
         
        
         tabbedPane.addTab("Score List", null, tablePageScoList, null);
@@ -303,43 +314,226 @@ public class MainFrame extends JFrame {
         gbc_lblCourseName.gridy = 4;
         panelInfo.add(lblCourseName, gbc_lblCourseName);
         
+        panelCard = new JPanel();
+        panelOveralInfo.add(panelCard);
+        panelCard.setLayout(new CardLayout(0, 0));
+        
         panelAction = new JPanel();
-        panelOveralInfo.add(panelAction);
+        panelCard.add(panelAction, "teacher");
         GridBagLayout gbl_panelAction = new GridBagLayout();
         gbl_panelAction.columnWidths = new int[]{0, 0, 0};
-        gbl_panelAction.rowHeights = new int[]{0, 0, 0};
+        gbl_panelAction.rowHeights = new int[]{0, 0, 0, 0, 0, 0};
         gbl_panelAction.columnWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
-        gbl_panelAction.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+        gbl_panelAction.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
         panelAction.setLayout(gbl_panelAction);
         
-        lblInputGradeID = new JLabel("Input Grade ID: ");
-        GridBagConstraints gbc_lblInputGradeID = new GridBagConstraints();
-        gbc_lblInputGradeID.insets = new Insets(0, 0, 5, 5);
-        gbc_lblInputGradeID.anchor = GridBagConstraints.EAST;
-        gbc_lblInputGradeID.gridx = 0;
-        gbc_lblInputGradeID.gridy = 0;
-        panelAction.add(lblInputGradeID, gbc_lblInputGradeID);
+        lblUpdateFor = new JLabel("Update Score of ");
+        GridBagConstraints gbc_lblUpdateFor = new GridBagConstraints();
+        gbc_lblUpdateFor.insets = new Insets(0, 0, 5, 5);
+        gbc_lblUpdateFor.anchor = GridBagConstraints.EAST;
+        gbc_lblUpdateFor.gridx = 0;
+        gbc_lblUpdateFor.gridy = 0;
+        panelAction.add(lblUpdateFor, gbc_lblUpdateFor);
         
-        txtInputGradeID = new JTextField();
-        txtInputGradeID.setText("0");
-        GridBagConstraints gbc_txtInputGradeID = new GridBagConstraints();
-        gbc_txtInputGradeID.anchor = GridBagConstraints.WEST;
-        gbc_txtInputGradeID.insets = new Insets(0, 0, 5, 0);
-        gbc_txtInputGradeID.gridx = 1;
-        gbc_txtInputGradeID.gridy = 0;
-        panelAction.add(txtInputGradeID, gbc_txtInputGradeID);
-        txtInputGradeID.setColumns(10);
+        txtStudent = new JTextField();
+        txtStudent.setEditable(false);
+        GridBagConstraints gbc_txtStudent = new GridBagConstraints();
+        gbc_txtStudent.anchor = GridBagConstraints.WEST;
+        gbc_txtStudent.insets = new Insets(0, 0, 5, 0);
+        gbc_txtStudent.gridx = 1;
+        gbc_txtStudent.gridy = 0;
+        panelAction.add(txtStudent, gbc_txtStudent);
+        txtStudent.setColumns(10);
+        
+        lblMidScore = new JLabel("Mid Score: ");
+        GridBagConstraints gbc_lblMidScore = new GridBagConstraints();
+        gbc_lblMidScore.anchor = GridBagConstraints.EAST;
+        gbc_lblMidScore.insets = new Insets(0, 0, 5, 5);
+        gbc_lblMidScore.gridx = 0;
+        gbc_lblMidScore.gridy = 1;
+        panelAction.add(lblMidScore, gbc_lblMidScore);
+        
+        txtMidScore = new JTextField();
+        txtMidScore.setColumns(10);
+        GridBagConstraints gbc_txtMidScore = new GridBagConstraints();
+        gbc_txtMidScore.anchor = GridBagConstraints.WEST;
+        gbc_txtMidScore.insets = new Insets(0, 0, 5, 0);
+        gbc_txtMidScore.gridx = 1;
+        gbc_txtMidScore.gridy = 1;
+        panelAction.add(txtMidScore, gbc_txtMidScore);
+        
+        lblFinalScore = new JLabel("Final score: ");
+        GridBagConstraints gbc_lblFinalScore = new GridBagConstraints();
+        gbc_lblFinalScore.anchor = GridBagConstraints.EAST;
+        gbc_lblFinalScore.insets = new Insets(0, 0, 5, 5);
+        gbc_lblFinalScore.gridx = 0;
+        gbc_lblFinalScore.gridy = 2;
+        panelAction.add(lblFinalScore, gbc_lblFinalScore);
+        
+        txtFinalScore = new JTextField();
+        txtFinalScore.setColumns(10);
+        GridBagConstraints gbc_txtFinalScore = new GridBagConstraints();
+        gbc_txtFinalScore.anchor = GridBagConstraints.WEST;
+        gbc_txtFinalScore.insets = new Insets(0, 0, 5, 0);
+        gbc_txtFinalScore.gridx = 1;
+        gbc_txtFinalScore.gridy = 2;
+        panelAction.add(txtFinalScore, gbc_txtFinalScore);
         
         btnUpdateScore = new JButton("Update Score");
         btnUpdateScore.addActionListener(this::btnUpdateScoreActionPerformed);
         
+        txtInputGradeID = new JTextField();
+        txtInputGradeID.setVisible(false);
+        txtInputGradeID.setEditable(false);
+        txtInputGradeID.setText("0");
+        GridBagConstraints gbc_txtInputGradeID = new GridBagConstraints();
+        gbc_txtInputGradeID.insets = new Insets(0, 0, 5, 5);
+        gbc_txtInputGradeID.anchor = GridBagConstraints.WEST;
+        gbc_txtInputGradeID.gridx = 0;
+        gbc_txtInputGradeID.gridy = 3;
+        panelAction.add(txtInputGradeID, gbc_txtInputGradeID);
+        txtInputGradeID.setColumns(10);
+        
         
         GridBagConstraints gbc_btnUpdateScore = new GridBagConstraints();
+        gbc_btnUpdateScore.insets = new Insets(0, 0, 5, 0);
         gbc_btnUpdateScore.anchor = GridBagConstraints.WEST;
         gbc_btnUpdateScore.gridx = 1;
-        gbc_btnUpdateScore.gridy = 1;
+        gbc_btnUpdateScore.gridy = 3;
         panelAction.add(btnUpdateScore, gbc_btnUpdateScore);
+        
+        panelActionStaff = new JPanel();
+        panelCard.add(panelActionStaff, "staff");
+        
+        GridBagLayout gbl_panelActionStaff = new GridBagLayout();
+        gbl_panelActionStaff.columnWidths = new int[]{0, 0, 0};
+        gbl_panelActionStaff.rowHeights = new int[]{0, 0, 0, 0, 0, 0};
+        gbl_panelActionStaff.columnWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
+        gbl_panelActionStaff.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+        panelActionStaff.setLayout(gbl_panelActionStaff);
+        
+        lblClassID = new JLabel("Class ID: ");
+        lblClassID.setHorizontalAlignment(SwingConstants.LEFT);
+        GridBagConstraints gbc_lblClassID = new GridBagConstraints();
+        gbc_lblClassID.insets = new Insets(0, 0, 5, 5);
+        gbc_lblClassID.gridx = 0;
+        gbc_lblClassID.gridy = 0;
+        panelActionStaff.add(lblClassID, gbc_lblClassID);
+        
+        lblClassID_2 = new JLabel("");
+        lblClassID_2.setHorizontalAlignment(SwingConstants.LEFT);
+        GridBagConstraints gbc_lblClassID_2 = new GridBagConstraints();
+        gbc_lblClassID_2.anchor = GridBagConstraints.WEST;
+        gbc_lblClassID_2.insets = new Insets(0, 0, 5, 0);
+        gbc_lblClassID_2.gridx = 1;
+        gbc_lblClassID_2.gridy = 0;
+        panelActionStaff.add(lblClassID_2, gbc_lblClassID_2);
+        
+        btnManageClass = new JButton("Manage Class");
+        btnManageClass.addActionListener(this::btnManageClassActionPerformed);
+        
+        lblAssignedTeacher = new JLabel("Assigned Teacher: ");
+        lblAssignedTeacher.setHorizontalAlignment(SwingConstants.LEFT);
+        GridBagConstraints gbc_lblAssignedTeacher = new GridBagConstraints();
+        gbc_lblAssignedTeacher.insets = new Insets(0, 0, 5, 5);
+        gbc_lblAssignedTeacher.gridx = 0;
+        gbc_lblAssignedTeacher.gridy = 1;
+        panelActionStaff.add(lblAssignedTeacher, gbc_lblAssignedTeacher);
+        
+        lblATeacherName = new JLabel("");
+        lblATeacherName.setHorizontalAlignment(SwingConstants.LEFT);
+        GridBagConstraints gbc_lblATeacherName = new GridBagConstraints();
+        gbc_lblATeacherName.anchor = GridBagConstraints.WEST;
+        gbc_lblATeacherName.insets = new Insets(0, 0, 5, 0);
+        gbc_lblATeacherName.gridx = 1;
+        gbc_lblATeacherName.gridy = 1;
+        panelActionStaff.add(lblATeacherName, gbc_lblATeacherName);
+        
+        lblInputClassID = new JLabel("Input Class ID: ");
+        GridBagConstraints gbc_lblInputClassID = new GridBagConstraints();
+        gbc_lblInputClassID .insets = new Insets(0, 0, 5, 5);
+        gbc_lblInputClassID .anchor = GridBagConstraints.EAST;
+        gbc_lblInputClassID .gridx = 0;
+        gbc_lblInputClassID .gridy = 3;
+        panelActionStaff.add(lblInputClassID , gbc_lblInputClassID );
+        
+        txtInputClassID = new JTextField();
+        txtInputClassID.setText("0");
+        GridBagConstraints gbc_txtInputClassID = new GridBagConstraints();
+        gbc_txtInputClassID.anchor = GridBagConstraints.WEST;
+        gbc_txtInputClassID.insets = new Insets(0, 0, 5, 0);
+        gbc_txtInputClassID.gridx = 1;
+        gbc_txtInputClassID.gridy = 3;
+        panelActionStaff.add(txtInputClassID, gbc_txtInputClassID);
+        txtInputClassID.setColumns(10);
+        
+        
+        GridBagConstraints gbc_btnManageClass = new GridBagConstraints();
+        gbc_btnManageClass.insets = new Insets(0, 0, 0, 5);
+        gbc_btnManageClass.gridx = 0;
+        gbc_btnManageClass.gridy = 4;
+        panelActionStaff.add(btnManageClass, gbc_btnManageClass);
+        
+        btnAddNewClass = new JButton("Add New Class");
+        GridBagConstraints gbc_btnAddNewClass = new GridBagConstraints();
+        gbc_btnAddNewClass.gridx = 1;
+        gbc_btnAddNewClass.gridy = 4;
+        btnAddNewClass.addActionListener(this::btnAddClassActionPerformed);
+        panelActionStaff.add(btnAddNewClass, gbc_btnAddNewClass);
+        
+        defineCardLayout();
+        
     }
+     
+    
+//    public void getCurrentAccRole(Account currentAcc) {
+//    	accId = currentAcc.getAccId();
+//    	role = currentAcc.getRoleId();
+//    }
+    
+    public void defineCardLayout() {
+    	CardLayout cardLayout = (CardLayout) panelCard.getLayout();
+    	if(currentAcc.getRoleId() == 2) {
+			cardLayout.show(panelCard, "teacher");
+			JOptionPane.showMessageDialog(null, "hello");
+    	}else {
+    		cardLayout.show(panelCard, "staff");
+    		JOptionPane.showMessageDialog(null, currentAcc.getRoleId());
+    	}
+    }
+    
+    
+    public void populateTree() {
+    	
+    	 root.removeAllChildren();
+    	 
+         var dao = new ClassesDao();
+
+			switch (currentAcc.getRoleId()) {
+			case 1:
+				dao.selectAll().forEach(cla -> {
+					root.add(new DefaultMutableTreeNode(cla.getClassName()));
+				});
+				break;
+			case 2:
+				dao.selectByTeachID(currentAcc.getEmpId()).forEach(cla -> {
+					root.add(new DefaultMutableTreeNode(cla.getClassName()));
+				});
+				break;
+			case 3:
+				dao.selectAll().forEach(cla -> {
+					root.add(new DefaultMutableTreeNode(cla.getClassName()));
+				});
+				break;
+			default:
+				break;
+			}
+			
+
+         tree.setModel(new DefaultTreeModel(root));
+         scrollPane.setViewportView(tree);
+    }
+    
 
     private Classes selectClassInfoByClassName() {
     	var classInfo = new Classes();
@@ -364,9 +558,6 @@ public class MainFrame extends JFrame {
 //    	}
 //    	return list;
 //    }
-	public void getCurrentAccount(Account acc) {
-		currentAcc = acc;
-	}
 
     private List<Object[]> fetchDataStuList(int currentPage, int numberOfRows) {
     	var classInfo = selectClassInfoByClassName();
@@ -421,6 +612,7 @@ public class MainFrame extends JFrame {
         	list.add(
               new Object[] {
                   number++,
+                  gra.getStuId(),
                   gra.getStuName(),
                   gra.getMidScore(),
                   gra.getFinalScore(),
@@ -445,15 +637,14 @@ public class MainFrame extends JFrame {
       return enrollStuDao.countStudentList(classInfo); // Only counting total rows here
   }
     
-    protected void btnUpdateScoreActionPerformed(ActionEvent e) {
-    	
-    	if(helper.Valid.checkRegex2(Regex.INTNUM, txtInputGradeID.getText())) {
-    		var gradeid =  Integer.parseInt(txtInputGradeID.getText());
+    protected void btnManageClassActionPerformed(ActionEvent e) {
+    	if(helper.Valid.checkRegex2(Regex.INTNUM, txtInputClassID.getText())) {
+    		var classid =  Integer.parseInt(txtInputClassID.getText());
     		var conn = ConnectDB.getCon();
-    		if(helper.Valid.checkScoreExists(conn, gradeid)) {
-//    			JOptionPane.showMessageDialog(null, "Grade ID exists");
-    			var f = UpdateGrade.getInstance();
-    			f.setGradeId(gradeid);
+    		if(helper.Valid.checkClassExists(conn, classid)) {
+    			var f = ManageClass.getInstance();
+    			
+    			f.setClassId(classid);
     			if(!f.isVisible()) {
     				f.setVisible(true);
     				desktopPane.add(f);
@@ -463,7 +654,7 @@ public class MainFrame extends JFrame {
                         @Override
                         public void internalFrameClosed(javax.swing.event.InternalFrameEvent e) {
                             // Reset the table when the frame is closed
-                        	tablePageScoList.resetTable();
+                        	populateTree();
                         }
                     });
     			}
@@ -471,15 +662,90 @@ public class MainFrame extends JFrame {
     		        f.moveToFront(); 
     			
     		}else {
-    			JOptionPane.showMessageDialog(null, "Grade ID doesn't exists");
+    			JOptionPane.showMessageDialog(null, "Class ID doesn't exists");
     		}
     	}else{
     		JOptionPane.showMessageDialog(null, "Invalid Input");
     	};
+    		}
+    protected void btnAddClassActionPerformed(ActionEvent e) {
+    	
+    			var f = AddClass.getInstance();
+    			
+    			if(!f.isVisible()) {
+    				f.setVisible(true);
+    				desktopPane.add(f);
 		
-		
-		
-	}
+    				 // Add an internal frame listener to perform actions when the frame is closed
+                    f.addInternalFrameListener(new javax.swing.event.InternalFrameAdapter() {
+                        @Override
+                        public void internalFrameClosed(javax.swing.event.InternalFrameEvent e) {
+                            // Reset the table when the frame is closed
+                        	populateTree();
+                        }
+                    });
+    			}
+    			 f.toFront(); 
+    		        f.moveToFront(); 
+    	
+    		}
+    	
+    protected void btnUpdateScoreActionPerformed(ActionEvent e) {
+    	var grade = new Grade();
+		 var dao = new GradeDao();
+		 var midCheck = helper.Valid.checkRegex2(Regex.DOUBLE, txtMidScore.getText()); 
+		 var finalCheck = helper.Valid.checkRegex2(Regex.DOUBLE, txtFinalScore.getText());
+		 
+		 if(midCheck && finalCheck) {
+			 grade.setMidScore(Double.parseDouble(txtMidScore.getText()));
+			 grade.setFinalScore(Double.parseDouble(txtFinalScore.getText()));
+			 grade.setAvgScore(dao.calcAveStrInput(txtMidScore.getText(), txtFinalScore.getText()));
+			 grade.setGradeId(Integer.parseInt(txtInputGradeID.getText()));
+			 dao.update(grade);
+			 JOptionPane.showMessageDialog(null, "Grade Updated");
+			 tablePageScoList.resetTable();
+			
+			
+		 }else {
+			 JOptionPane.showMessageDialog(null, "Invalid Input");
+		 }
+    }
+   
+//    protected void btnUpdateScoreActionPerformed(ActionEvent e) {
+//    	
+//    	if(helper.Valid.checkRegex2(Regex.INTNUM, txtInputGradeID.getText())) {
+//    		var gradeid =  Integer.parseInt(txtInputGradeID.getText());
+//    		var conn = ConnectDB.getCon();
+//    		if(helper.Valid.checkScoreExists(conn, gradeid)) {
+//
+//    			var f = UpdateGrade.getInstance();
+//    			f.setGradeId(gradeid);
+//    			if(!f.isVisible()) {
+//    				f.setVisible(true);
+//    				desktopPane.add(f);
+//    				
+//    				 // Add an internal frame listener to perform actions when the frame is closed
+//                    f.addInternalFrameListener(new javax.swing.event.InternalFrameAdapter() {
+//                        @Override
+//                        public void internalFrameClosed(javax.swing.event.InternalFrameEvent e) {
+//                            // Reset the table when the frame is closed
+//                        	tablePageScoList.resetTable();
+//                        }
+//                    });
+//    			}
+//    			 f.toFront(); 
+//    		        f.moveToFront(); 
+//    			
+//    		}else {
+//    			JOptionPane.showMessageDialog(null, "Grade ID doesn't exists");
+//    		}
+//    	}else{
+//    		JOptionPane.showMessageDialog(null, "Invalid Input");
+//    	};
+//		
+//		
+//		
+//	}
 
 
     protected void treeValueChanged(TreeSelectionEvent e) {
@@ -492,13 +758,20 @@ public class MainFrame extends JFrame {
 
         // Update class details
         var courseDao = new CourseDao();
+        var teachDao = new EmployeeDao();
         var enrollStuDao = new EnrollStuDao();
+        
 
         lblClName.setText(classInfo.getClassName());
         lblStartDate.setText(classInfo.getStartDate().toString());
         lblEndDate.setText(classInfo.getEndDate().toString());
         lblStuCounts.setText(String.valueOf(enrollStuDao.countStudentList(classInfo)));
         lblCourseName.setText(courseDao.selectCourseById(classInfo.getCourseId()).getCourseName());
+        lblClassID_2.setText(String.valueOf(classInfo.getClassId()));
+        
+        var teachId = classInfo.getTeachId();
+        var teachName = teachDao.selectEmpNameById(teachId);
+        lblATeacherName.setText(teachId + " - " + teachName);
 
         // Refresh the table based on the selected tab
         if (tabbedPane.getSelectedComponent() == tablePageScoList) {

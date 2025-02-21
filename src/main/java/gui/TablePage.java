@@ -5,17 +5,20 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
 import dao.EnrollStuDao;
@@ -32,6 +35,9 @@ public class TablePage extends JPanel implements Paging.PagingListener {
     private String[] columnNames;
     private Map<Integer, Class<?>> columnTypes = new HashMap<>();
     private Map<Integer, Consumer<Object>> fieldMappings;
+    private Map<Integer, Integer> columnMap = new HashMap<>();
+    private int columnWidths;
+    private int editableColumn = -1;
 	
 
     // Functional interfaces for dynamic data and count fetching
@@ -42,7 +48,7 @@ public class TablePage extends JPanel implements Paging.PagingListener {
 
 
 
-    public TablePage(DataFetcher dataFetcher, Paging.CountFetcher countFetcher) {
+    public TablePage (DataFetcher dataFetcher, Paging.CountFetcher countFetcher)  {
         this.dataFetcher = dataFetcher;
         this.countFetcher = countFetcher;
         setLayout(new BorderLayout(0, 0));
@@ -67,7 +73,8 @@ public class TablePage extends JPanel implements Paging.PagingListener {
 
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false;  // Set to false for sorting stability
+//                return false;  // Set to false for sorting stability
+            	return column == editableColumn;
             }
         };
 
@@ -76,10 +83,14 @@ public class TablePage extends JPanel implements Paging.PagingListener {
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.setRowSorter(new TableRowSorter<>(tableModel)); // Enables sorting
         table.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e,  JTable table, Map<Integer, Consumer<Object>> fieldMappings) {
-				tableMouseClicked(e, table, fieldMappings);
-			}
-		});
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (fieldMappings != null) {
+                    tableMouseClicked(e, table, fieldMappings);
+                }
+            }
+        });
+
         add(new JScrollPane(table), BorderLayout.CENTER);
        
         // Fetch initial data and total pages
@@ -88,8 +99,27 @@ public class TablePage extends JPanel implements Paging.PagingListener {
         paging.updateTotalRowsFromDao();
     }
 //
-//    abstract void tableMousePressed(MouseEvent e);
-//    abstract void deleteRow(ActionEvent actionevent1);
+    //    public void setEditableColumn(int editableColumn) {
+    public void setEditableColumn(int columnIndex) {
+        this.editableColumn = columnIndex;
+    }
+
+    // Overload to disable editing entirely
+    public void disableEditing() {
+        this.editableColumn = -1;
+    }
+    
+    public List<Object> checkedRows(int checkBoxCol, int neededCol) {
+    	List<Object> checkedRows = new ArrayList<>();
+    	for (int row = 0; row < table.getRowCount(); row++) {
+    	    Boolean isChecked = (Boolean) table.getValueAt(row, checkBoxCol);
+    	    if (isChecked) {
+    	    	Object someData = table.getValueAt(row, neededCol);
+    	    	checkedRows.add(someData);
+    	    }
+    	}
+    	return checkedRows;
+    }
 
 
 
@@ -114,6 +144,15 @@ public class TablePage extends JPanel implements Paging.PagingListener {
             action.accept(value);
         });
     }
+    
+    public void setFieldMappings(Map<Integer, Consumer<Object>> fieldMappings) {
+        this.fieldMappings = fieldMappings;
+    }
+    
+	public void setColumnWidths(int columnIndex) {
+		columnWidths = table.getColumnModel().getColumn(columnIndex).getWidth();
+	}
+
 
 
     //Dynamically set the columns' name
@@ -123,6 +162,33 @@ public class TablePage extends JPanel implements Paging.PagingListener {
       tableModel.setColumnIdentifiers(columnNames);
       tableModel.fireTableStructureChanged();
   }
+    
+    public void setColumnVisibility(int columnIndex, boolean isVisible) {	
+        if (columnIndex < 0 || columnIndex >= table.getColumnCount()) {
+            System.err.println("Invalid column index: " + columnIndex);
+            return;
+        }
+
+        TableColumn column = table.getColumnModel().getColumn(columnIndex);
+
+        if (isVisible) {
+            // Restore the original width if it was previously hidden
+            if (columnMap.containsKey(columnIndex)) {
+                column.setMinWidth(columnMap.get(columnIndex));
+                column.setMaxWidth(500); // Adjust max width as needed
+                column.setPreferredWidth(columnMap.get(columnIndex));
+            }
+        } else {
+            // Store the original width before hiding
+            if (!columnMap.containsKey(columnIndex)) {
+                columnMap.put(columnIndex, column.getWidth());
+            }
+            column.setMinWidth(0);
+            column.setMaxWidth(0);
+            column.setPreferredWidth(0);
+        }
+    }
+
 
 
     /**
@@ -138,6 +204,7 @@ public class TablePage extends JPanel implements Paging.PagingListener {
     public void setTableStatus(boolean status) {
     	table.setRowSelectionAllowed(status);
     }
+    
 
     /**
      * Clears and updates the table with the provided data.

@@ -60,8 +60,7 @@ public class GradeDao {
 			if (cs.executeUpdate() > 0) {
 				JOptionPane.showMessageDialog(null, "Grade Successfully Added", "Message",
 						JOptionPane.INFORMATION_MESSAGE);
-			}
-			;
+			};
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -73,11 +72,11 @@ public class GradeDao {
 			cs.setDouble(2, grade.getFinalScore());
 			cs.setDouble(3, grade.getAvgScore());
 			cs.setInt(4, grade.getGradeId());
-			if (cs.executeUpdate() > 0) {
-				JOptionPane.showMessageDialog(null, "Grade Successfully Updated", "Message",
-						JOptionPane.INFORMATION_MESSAGE);
-			}
-			;
+			cs.executeUpdate();
+//			if (cs.executeUpdate() > 0) {
+//				JOptionPane.showMessageDialog(null, "Grade Successfully Updated", "Message",
+//						JOptionPane.INFORMATION_MESSAGE);
+//			};
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

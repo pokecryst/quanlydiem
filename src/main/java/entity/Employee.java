@@ -93,11 +93,29 @@ public class Employee {
 		this.empPhone = empPhone;
 	}
 
+//	@Override
+//	public String toString() {
+//		return "Employee [empId=" + empId + ", empName=" + empName + ", empGender=" + empGender + ", empDob=" + empDob
+//				+ ", empPhone=" + empPhone + ", empAddress=" + empAddress + ", empHireDate=" + empHireDate
+//				+ ", empImage=" + empImage + "]";
+//	}
+	
 	@Override
 	public String toString() {
-		return "Employee [empId=" + empId + ", empName=" + empName + ", empGender=" + empGender + ", empDob=" + empDob
-				+ ", empPhone=" + empPhone + ", empAddress=" + empAddress + ", empHireDate=" + empHireDate
-				+ ", empImage=" + empImage + "]";
+		return empId + " - " + empName;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+	    if (this == obj) return true;
+	    if (obj == null || getClass() != obj.getClass()) return false;
+	    Employee other = (Employee) obj;
+	    return this.empId == other.empId;
+	}
+
+	@Override
+	public int hashCode() {
+	    return Integer.hashCode(empId);
 	}
 
 

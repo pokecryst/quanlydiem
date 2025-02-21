@@ -6,6 +6,7 @@ public class EnrollStu {
 	private int enrollId;
 	private Date enrollDate;
 	private Student student;
+	private int classId;
 
 	public EnrollStu() {}
 
@@ -37,6 +38,15 @@ public class EnrollStu {
 
 	public void setStudent(Student student) {
 		this.student = student;
+	}
+	
+
+	public int getClassId() {
+		return classId;
+	}
+
+	public void setClassId(int classId) {
+		this.classId = classId;
 	}
 
 	@Override

@@ -35,6 +35,45 @@ public class EmployeeDao {
 
 		return list;
 	}
+	
+	public Employee selectEmpByID(int id) {
+	    Employee emp = null;
+	    try (var conn = ConnectDB.getCon();
+	         var cs = conn.prepareCall("{call selectEmpByID(?)}")) {
+
+	        cs.setInt(1, id);
+	        try (var rs = cs.executeQuery()) {
+	            if (rs.next()) {
+	                emp = new Employee();
+	                emp.setEmpId(rs.getInt("empId"));
+	                emp.setEmpName(rs.getString("empName"));
+	                emp.setEmpGender(rs.getBoolean("empGender"));
+	                emp.setEmpDob(rs.getDate("empDob").toLocalDate());
+	                emp.setEmpPhone(rs.getString("empPhone"));
+	                emp.setEmpAddress(rs.getString("empAddress"));
+	                emp.setEmpHireDate(rs.getDate("empHireDate").toLocalDate());
+	                emp.setEmpImage(rs.getString("empImage"));
+	            }
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return emp;  // Will be null if no record found
+	}
+	
+	public String selectEmpNameById(int id) {
+		var empName = "";
+		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call selectEmpNameById(?)}")) {
+			cs.setInt(1, id);
+			var rs = cs.executeQuery();
+			while (rs.next()) {
+				empName = rs.getString("empName");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return empName;
+	}
 
 //	get employee id without account
 	public List<Integer> getEmpIdsWithoutAccount() {
@@ -50,6 +89,31 @@ public class EmployeeDao {
 			e.printStackTrace();
 		}
 		return listEmpId;
+	}
+	
+	public List<Employee> selectTeacher(){
+		List<Employee> list = new ArrayList<>();
+        try (var conn = ConnectDB.getCon();
+                var cs = conn.prepareCall("{call selectTeacher()}");
+                var rs = cs.executeQuery())
+        {
+        	while (rs.next()) {
+				var emp = new Employee();
+				emp.setEmpId(rs.getInt("empId"));
+				emp.setEmpName(rs.getString("empName"));
+				emp.setEmpGender(rs.getBoolean("empGender"));
+				emp.setEmpDob(rs.getDate("empDob").toLocalDate());
+				emp.setEmpPhone(rs.getString("EmpPhone"));
+				emp.setEmpAddress(rs.getString("empAddress"));
+				emp.setEmpHireDate(rs.getDate("empHireDate").toLocalDate());
+				emp.setEmpImage(rs.getString("empImage"));
+				list.add(emp);
+			}
+                
+	}catch (SQLException e) {
+        e.printStackTrace();
+    }
+        return list;
 	}
 
 	// update employee

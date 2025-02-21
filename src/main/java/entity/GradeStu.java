@@ -2,14 +2,16 @@ package entity;
 
 public class GradeStu {
 	private String  stuName;
+	private int stuId;
 	private int gradeId;
 	private double midScore;
 	private double finalScore;
 	private double avgScore;
 	private int enrollId;
 
-	public GradeStu(String stuName, int gradeId, double midScore, double finalScore, double avgScore, int enrollId) {
+	public GradeStu(int stuId, String stuName, int gradeId, double midScore, double finalScore, double avgScore, int enrollId) {
 		super();
+		this.stuId      = stuId;
 		this.stuName    = stuName;
 		this.gradeId    = gradeId;
 		this.midScore   = midScore;
@@ -18,6 +20,14 @@ public class GradeStu {
 		this.enrollId   = enrollId;
 	}
 	public GradeStu() {}
+	
+	
+	public int getStuId() {
+		return stuId;
+	}
+	public void setStuId(int stuId) {
+		this.stuId = stuId;
+	}
 	public String getStuName() {
 		return stuName;
 	}

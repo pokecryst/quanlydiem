@@ -4,40 +4,38 @@ import java.time.LocalDate;
 
 public class Account {
 
-	// create enum for account type
-	public enum AccType {
-		admin, teacher, staff
-	}
-
 	private int    accId;
 	private String accEmail;
 	private String accPass;
-	private AccType accType;
 	private LocalDate accCreateDate;
 	private Boolean   accStatus;
 	private int     empId;
+	private int roleId;
 
 
 	public Account() {
 	}
 
-	public Account(String accEmail, String accPass, AccType accType, Boolean accStatus, int empId) {
+	public Account(String accEmail, String accPass, Boolean accStatus, int empId, int roleId) {
 		this.accEmail  = accEmail;
 		this.accPass   = accPass;
-		this.accType   = accType;
 		this.accStatus = accStatus;
 		this.empId     = empId;
+		this.roleId    = roleId;
+		
 	}
-
-	public Account(int accId, String accEmail, String accPass, AccType accType, LocalDate accCreateDate,
-	    Boolean accStatus, int empId) {
-		this.accId         = accId;
-		this.accEmail      = accEmail;
-		this.accPass       = accPass;
-		this.accType       = accType;
+	
+	
+	public Account(int accId, String accEmail, String accPass, LocalDate accCreateDate, Boolean accStatus, int empId,
+			int roleId) {
+		super();
+		this.accId = accId;
+		this.accEmail = accEmail;
+		this.accPass = accPass;
 		this.accCreateDate = accCreateDate;
-		this.accStatus     = accStatus;
-		this.empId         = empId;
+		this.accStatus = accStatus;
+		this.empId = empId;
+		this.roleId = roleId;
 	}
 
 	public int getAccId() {
@@ -64,14 +62,6 @@ public class Account {
 		this.accPass = accPass;
 	}
 
-	public AccType getAccType() {
-		return accType;
-	}
-
-	public void setAccType(AccType accType) {
-		this.accType = accType;
-	}
-
 	public LocalDate getAccCreateDate() {
 		return accCreateDate;
 	}
@@ -95,12 +85,24 @@ public class Account {
 	public void setEmpId(int empId) {
 		this.empId = empId;
 	}
+	
+	
+
+	public int getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(int roleId) {
+		this.roleId = roleId;
+	}
 
 	@Override
 	public String toString() {
-		return "Account [accId=" + accId + ", accEmail=" + accEmail + ", accPass=" + accPass + ", accType=" + accType
-		    + ", accCreateDate=" + accCreateDate + ", accStatus=" + accStatus + ", empId=" + empId + "]";
+		return "Account [accId=" + accId + ", accEmail=" + accEmail + ", accPass=" + accPass + ", accCreateDate="
+				+ accCreateDate + ", accStatus=" + accStatus + ", empId=" + empId + ", roleId=" + roleId + "]";
 	}
+
+
 
 
 

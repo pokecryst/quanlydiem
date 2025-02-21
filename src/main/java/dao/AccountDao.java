@@ -45,13 +45,13 @@ public class AccountDao {
 					acc.setAccId(rs.getInt("accId"));
 					acc.setAccEmail(rs.getString("accEmail"));
 					acc.setAccPass(rs.getString("accPass"));
-					acc.setAccType(Account.AccType.valueOf(rs.getString("accType")));
 					acc.setAccCreateDate(rs.getDate("CreatedDate").toLocalDate());
 					acc.setAccStatus(rs.getBoolean("accStatus"));
 					acc.setEmpId(rs.getInt("empId"));
+					acc.setRoleId(rs.getInt("roleId"));
 
 					// only add non-admin account
-					if (acc.getAccType() != Account.AccType.admin) {
+					if (acc.getRoleId() != 1) {
 						list.add(acc);
 					}
 				}
@@ -77,11 +77,10 @@ public class AccountDao {
 					acc.setAccId(rs.getInt("accId"));
 					acc.setAccEmail(rs.getString("accEmail"));
 					acc.setAccPass(rs.getString("accPass"));
-					acc.setAccType(Account.AccType.valueOf(rs.getString("accType")));
 					acc.setAccCreateDate(rs.getDate("CreatedDate").toLocalDate());
 					acc.setAccStatus(rs.getBoolean("accStatus"));
 					acc.setEmpId(rs.getInt("empId"));
-					list.add(acc);
+					acc.setRoleId(rs.getInt("roleId"));
 				}
 
 			}catch(Exception e) {
@@ -117,7 +116,7 @@ public class AccountDao {
 			try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call insertAcc(?, ?, ?, ?, ?)}")) {
 				cs.setString(1, acc.getAccEmail());
 				cs.setString(2, acc.getAccPass());
-				cs.setString(3, acc.getAccType().toString());
+				cs.setInt(3, acc.getRoleId());
 				cs.setBoolean(4, acc.getAccStatus());
 				cs.setInt(5, acc.getEmpId());
 				cs.execute();
@@ -133,7 +132,7 @@ public class AccountDao {
 				cs.setInt(1, acc.getAccId());
 				cs.setString(2, acc.getAccEmail());
 				cs.setString(3, acc.getAccPass());
-				cs.setString(4, acc.getAccType().toString());
+				cs.setInt(4, acc.getRoleId());
 				cs.setDate(5, java.sql.Date.valueOf(acc.getAccCreateDate()));
 				cs.setBoolean(6, acc.getAccStatus());
 				cs.setInt(7, acc.getEmpId());
@@ -158,10 +157,10 @@ public class AccountDao {
 					acc.setAccId(rs.getInt("accId"));
 					acc.setAccEmail(rs.getString("accEmail"));
 					acc.setAccPass(rs.getString("accPass"));
-					acc.setAccType(Account.AccType.valueOf(rs.getString("accType")));
 					acc.setAccCreateDate(rs.getDate("CreatedDate").toLocalDate());
 					acc.setAccStatus(rs.getBoolean("accStatus"));
 					acc.setEmpId(rs.getInt("empId"));
+					acc.setRoleId(rs.getInt("roleId"));
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
