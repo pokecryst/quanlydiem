@@ -1,6 +1,6 @@
-/helper/
-/dao/
-/entity/
 /META-INF/
 /sub/
+/entity/
+/dao/
 /gui/
+/helper/

@@ -252,6 +252,15 @@ BEGIN
 END
 GO
 
+	--getroleid
+CREATE PROCEDURE GetRoleIdByEmpId
+    @empId INT
+AS
+BEGIN
+    SELECT roleId FROM employee WHERE empId = @empId;
+END
+GO
+
 
 --accounts
 --- store validate account---
@@ -263,8 +272,13 @@ BEGIN
     SET NOCOUNT ON;
 
     IF EXISTS (SELECT 1 FROM Accounts WHERE accEmail = @accEmail AND accPass = @accPass)
-		SELECT 1 AS IsValid;
-        
+    BEGIN
+        SELECT 1 AS IsValid, roleId FROM Accounts WHERE accEmail = @accEmail;
+    END
+    ELSE
+    BEGIN
+        SELECT 0 AS IsValid, NULL AS roleId;
+    END
 END
 GO
 --- store select account ---
@@ -290,7 +304,6 @@ CREATE OR ALTER PROCEDURE updateAcc
     @accMail VARCHAR(100),
     @accPass VARCHAR(255),
     @roleId INT,
-    @accCreatedDate DATE,
     @accStatus BIT,
     @empId INT
 AS
@@ -299,12 +312,12 @@ BEGIN
     SET accEmail = @accMail,
         accPass = @accPass,
         roleId = @roleId,
-        CreatedDate = @accCreatedDate,
         accStatus = @accStatus,
         empId = @empId
     WHERE accId = @accId;
 END
 GO
+
 ---store add account
 CREATE OR ALTER PROCEDURE insertAcc
 @accMail VARCHAR(100),
@@ -503,6 +516,15 @@ CREATE OR ALTER PROC selectCourseById
 AS
 BEGIN
 	SELECT * FROM course
+	WHERE courseId = @courseId
+END
+GO
+
+CREATE OR ALTER PROC selectCourseNameById
+@courseId INT
+AS
+BEGIN
+	SELECT courseName FROM course
 	WHERE courseId = @courseId
 END
 GO
@@ -837,6 +859,28 @@ BEGIN
 END
 GO
 
+CREATE OR ALTER PROC pagingEnrollListOfStu
+@currentpage INT, @numberofrows INT, @stuId INT
+AS
+BEGIN
+	SELECT * FROM enrollment
+	WHERE stuId = @stuId
+    ORDER BY enrollId
+	OFFSET ((@currentpage - 1) * @numberofrows) ROWS
+	FETCH NEXT @numberofrows ROWS ONLY;
+END
+GO
+
+pagingEnrollListOfStu 1, 10 , 2
+
+CREATE OR ALTER PROC countEnrollListOfStu
+@stuId INT
+AS
+BEGIN
+	SELECT count(stuId) total FROM enrollment
+	WHERE stuId = @stuId
+END
+GO
 
 
 --Grade
@@ -871,6 +915,49 @@ GO
 
 --pagingGradeStu 1, 5, 1
 
+--Employee and Teacher
+CREATE OR ALTER PROC pagingTeacher
+@currentpage INT, @numberofrows INT
+AS
+BEGIN
+	SELECT * FROM employee
+	WHERE roleId = 2
+	ORDER BY empId
+	OFFSET ((@currentpage - 1) * @numberofrows) ROWS
+	FETCH NEXT @numberofrows ROWS ONLY
+END
+GO
+
+pagingTeacher 1, 10
+
+CREATE OR ALTER PROC countTeacher
+AS
+BEGIN
+	SELECT COUNT(empId) total FROM employee
+	WHERE roleId = 2
+END
+GO
+
+CREATE OR ALTER PROC pagingEmp
+@currentpage INT, @numberofrows INT
+AS
+BEGIN
+	SELECT * FROM employee
+	WHERE roleId != 2
+	ORDER BY empId
+	OFFSET ((@currentpage - 1) * @numberofrows) ROWS
+	FETCH NEXT @numberofrows ROWS ONLY
+END
+GO
+
+CREATE OR ALTER PROC countEmp
+AS
+BEGIN
+	SELECT COUNT(empId) total FROM employee
+	WHERE roleId != 2
+END
+GO
+
 --Account
 CREATE OR ALTER PROC pagingAccount
 @currentpage INT, @numberofrows INT
@@ -887,6 +974,63 @@ CREATE OR ALTER PROC countAccount
 AS
 BEGIN
 	SELECT COUNT(accId) total FROM accounts
+END
+GO
+--Student
+CREATE OR ALTER PROC pagingStudent
+@currentpage INT, @numberofrows INT
+AS
+BEGIN
+	SELECT * FROM student
+	ORDER BY stuId
+	OFFSET ((@currentpage - 1) * @numberofrows) ROWS
+	FETCH NEXT @numberofrows ROWS ONLY
+END
+GO
+
+
+CREATE OR ALTER PROC countStudent
+AS
+BEGIN
+	SELECT COUNT(stuId) total FROM student
+END
+GO
+
+--Course
+CREATE OR ALTER PROC pagingCourse
+@currentpage INT, @numberofrows INT
+AS
+BEGIN
+	SELECT * FROM course
+	ORDER BY courseId
+	OFFSET ((@currentpage - 1) * @numberofrows) ROWS
+	FETCH NEXT @numberofrows ROWS ONLY
+END
+GO
+
+CREATE OR ALTER PROC countCourse
+AS
+BEGIN
+	SELECT COUNT(courseId) total FROM course
+END
+GO
+
+--Class
+CREATE OR ALTER PROC pagingClass
+@currentpage INT, @numberofrows INT
+AS
+BEGIN
+    SELECT * FROM class
+    ORDER BY classId
+    OFFSET ((@currentpage - 1) * @numberofrows) ROWS
+    FETCH NEXT @numberofrows ROWS ONLY
+END
+GO
+
+CREATE OR ALTER PROC countClass
+AS
+BEGIN
+    SELECT COUNT(classId) AS total FROM class
 END
 GO
 

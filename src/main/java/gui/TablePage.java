@@ -33,11 +33,13 @@ public class TablePage extends JPanel implements Paging.PagingListener {
     private JTable table;
     private DefaultTableModel tableModel;
     private String[] columnNames;
+    private Runnable onTableClickListener;
     private Map<Integer, Class<?>> columnTypes = new HashMap<>();
     private Map<Integer, Consumer<Object>> fieldMappings;
     private Map<Integer, Integer> columnMap = new HashMap<>();
     private int columnWidths;
     private int editableColumn = -1;
+    private boolean enableCbb = true;
 	
 
     // Functional interfaces for dynamic data and count fetching
@@ -80,7 +82,7 @@ public class TablePage extends JPanel implements Paging.PagingListener {
 
         // Create the table with sorting
         table = new JTable(tableModel);
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         table.setRowSorter(new TableRowSorter<>(tableModel)); // Enables sorting
         table.addMouseListener(new MouseAdapter() {
             @Override
@@ -109,6 +111,14 @@ public class TablePage extends JPanel implements Paging.PagingListener {
         this.editableColumn = -1;
     }
     
+	public void setEnableCbb(boolean enableCbb) {
+		this.enableCbb = enableCbb;
+	}
+	
+	public boolean isEnableCbb() {
+		return enableCbb;
+	}
+    
     public List<Object> checkedRows(int checkBoxCol, int neededCol) {
     	List<Object> checkedRows = new ArrayList<>();
     	for (int row = 0; row < table.getRowCount(); row++) {
@@ -136,9 +146,18 @@ public class TablePage extends JPanel implements Paging.PagingListener {
     }
     
     //click
+    public void setOnTableClickListener(Runnable listener) {
+        this.onTableClickListener = listener;
+    }
     
     protected void tableMouseClicked(MouseEvent e, JTable table, Map<Integer, Consumer<Object>> fieldMappings) {
         int row = table.getSelectedRow();
+        enableCbb = false;
+        
+        // Notify external listener (AcountSub)
+        if (onTableClickListener != null) {
+            onTableClickListener.run();
+        }
         fieldMappings.forEach((columnIndex, action) -> {
             Object value = table.getValueAt(row, columnIndex);
             action.accept(value);
@@ -216,7 +235,7 @@ public class TablePage extends JPanel implements Paging.PagingListener {
       for (Object[] row : data) { // Ensure it's properly handled as an array
           tableModel.addRow(row);
       }
-      table.setRowHeight(60);
+      table.setRowHeight(80);
 
       var picturePathIndex = -1;
 

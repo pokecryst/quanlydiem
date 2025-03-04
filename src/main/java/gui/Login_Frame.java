@@ -51,7 +51,7 @@ public class Login_Frame extends JFrame {
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
         contentPane.setLayout(null);
-
+        
         var panel = new JPanel();
         panel.setBorder(new LineBorder(new Color(0, 0, 0)));
         panel.setBounds(50, 50, 325, 150);
@@ -80,35 +80,38 @@ public class Login_Frame extends JFrame {
         btnLogin.setBounds(100, 110, 200, 25);
         panel.add(btnLogin);
     }
-  	protected void btnLoginActionPerformed(ActionEvent e) {
-  		var username = usernameField.getText();
-      var password = new String(passwordField.getPassword());
+    protected void btnLoginActionPerformed(ActionEvent e) {
+		var username = usernameField.getText();
+  var password = new String(passwordField.getPassword());
 
-      var accountDao = new AccountDao();
-      if (accountDao.validateAccount(username, password)) {
-          JOptionPane.showMessageDialog(this, "Welcome Back my Partner");
-//          var acc = new Account();
-          var account = accountDao.selectOneAccount(username);
-          if(account.getRoleId() == 1) {
-        	  var AF = new Admin_Frame();
-              AF.setVisible(true);
-              AF.setLocationRelativeTo(null);
-              dispose();
-          }else if(account.getRoleId() == 2) {
-        	  var MF = new TestFrame(account);
-        	  MF.setVisible(true);
-              MF.setLocationRelativeTo(null);
-              dispose();
-          }else {
-        	  var MF = new TestFrame(account);
-        	  MF.setVisible(true);
-              MF.setLocationRelativeTo(null);
-              dispose();
-          }
-          
-      } else {
-    	 
-        JOptionPane.showMessageDialog(this, "Login failed");
-      }
-  	}
+  var accountDao = new AccountDao();
+		var validationResult = accountDao.validateAccount(username, password);
+		if (validationResult.startsWith("Valid account with roleId: ")) {
+			var account = accountDao.selectOneAccount(username);
+			var roleId = Integer.parseInt(validationResult.split(": ")[1]);
+			if (roleId == 1) {
+				JOptionPane.showMessageDialog(this, "Welcome Back ADMIN");
+				var AF = new TestFrame(account);
+				AF.setVisible(true);
+				AF.setLocationRelativeTo(null);
+				dispose();
+			} else if (roleId == 3) { 
+				JOptionPane.showMessageDialog(this, "Welcome Back STAFF");
+				var STF = new TestFrame(account);
+				STF.setVisible(true);
+				STF.setLocationRelativeTo(null);
+				dispose();
+			} else if (roleId == 2){
+				JOptionPane.showMessageDialog(this, "Welcome Back TEACHER");
+				var STF = new TestFrame(account);
+				STF.setVisible(true);
+				STF.setLocationRelativeTo(null);
+				dispose();
+			} else {
+				JOptionPane.showMessageDialog(this, "Login failed");
+			}
+  } else {
+			JOptionPane.showMessageDialog(this, validationResult);
+  }
+	}
 }

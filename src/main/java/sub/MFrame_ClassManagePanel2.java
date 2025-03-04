@@ -63,8 +63,6 @@ public class MFrame_ClassManagePanel2 extends JPanel {
     private static final long serialVersionUID = 1L;
     private JPanel contentQLD_GV;
     private JDesktopPane desktopPane;
-    private JMenuBar menuBar;
-    private JMenu mnNewMenu;
     private JSplitPane splitPane;
     private JPanel panelLeft;
     private JScrollPane scrollPane;
@@ -89,6 +87,7 @@ public class MFrame_ClassManagePanel2 extends JPanel {
     private Integer numberOfRows = 10; // số dòng hiển thị trên 1 trang
     private Integer totalRows = 0; // tổng số dòng (hàng) trong csdl
     private Double totalPage = 0.0; // tổng số trang
+    private int classId;
     private Account currentAcc = new Account();
     private GradeStuDao gradestuDao = new GradeStuDao();
 
@@ -99,8 +98,6 @@ public class MFrame_ClassManagePanel2 extends JPanel {
     private JLabel lblUpdateFor;
     private JTextField txtInputGradeID;
     private JButton btnUpdateScore;
-    private JLabel lblInputClassID;
-    private JTextField txtInputClassID;
     private JButton btnManageClass;
     private JPanel panelCard;
     private JLabel lblClassID;
@@ -449,24 +446,6 @@ public class MFrame_ClassManagePanel2 extends JPanel {
         gbc_lblATeacherName.gridy = 1;
         panelActionStaff.add(lblATeacherName, gbc_lblATeacherName);
         
-        lblInputClassID = new JLabel("Input Class ID: ");
-        GridBagConstraints gbc_lblInputClassID = new GridBagConstraints();
-        gbc_lblInputClassID .insets = new Insets(0, 0, 5, 5);
-        gbc_lblInputClassID .anchor = GridBagConstraints.EAST;
-        gbc_lblInputClassID .gridx = 0;
-        gbc_lblInputClassID .gridy = 3;
-        panelActionStaff.add(lblInputClassID , gbc_lblInputClassID );
-        
-        txtInputClassID = new JTextField();
-        txtInputClassID.setText("0");
-        GridBagConstraints gbc_txtInputClassID = new GridBagConstraints();
-        gbc_txtInputClassID.anchor = GridBagConstraints.WEST;
-        gbc_txtInputClassID.insets = new Insets(0, 0, 5, 0);
-        gbc_txtInputClassID.gridx = 1;
-        gbc_txtInputClassID.gridy = 3;
-        panelActionStaff.add(txtInputClassID, gbc_txtInputClassID);
-        txtInputClassID.setColumns(10);
-        
         
         GridBagConstraints gbc_btnManageClass = new GridBagConstraints();
         gbc_btnManageClass.insets = new Insets(0, 0, 0, 5);
@@ -495,10 +474,8 @@ public class MFrame_ClassManagePanel2 extends JPanel {
     	CardLayout cardLayout = (CardLayout) panelCard.getLayout();
     	if(currentAcc.getRoleId() == 2) {
 			cardLayout.show(panelCard, "teacher");
-			JOptionPane.showMessageDialog(null, "hello");
     	}else {
     		cardLayout.show(panelCard, "staff");
-    		JOptionPane.showMessageDialog(null, currentAcc.getRoleId());
     	}
     }
     
@@ -576,8 +553,8 @@ public class MFrame_ClassManagePanel2 extends JPanel {
                   number++,
                   en.getStudent().getStuId(),
                   en.getStudent().getStuName(),
-                  en.getStudent().isstuGender(),
-                  en.getStudent().getStuDob(),
+                  en.getStudent().isStuGender(),
+                  java.sql.Date.valueOf(en.getStudent().getStuDob()),
                   en.getStudent().getStuAddress(),
                   en.getStudent().getStuEmail(),
                   en.getStudent().getStuPhone(),
@@ -637,14 +614,44 @@ public class MFrame_ClassManagePanel2 extends JPanel {
       return enrollStuDao.countStudentList(classInfo); // Only counting total rows here
   }
     
+//    protected void btnManageClassActionPerformed(ActionEvent e) {
+//    	if(helper.Valid.checkRegex2(Regex.INTNUM, txtInputClassID.getText())) {
+//    		var classid =  classId;
+//    		var conn = ConnectDB.getCon();
+//    		if(helper.Valid.checkClassExists(conn, classid)) {
+//    			var f = ManageClass.getInstance();
+//    			
+//    			f.setClassId(classid);
+//    			if(!f.isVisible()) {
+//    				f.setVisible(true);
+//    				desktopPane.add(f);
+//    				
+//    				 // Add an internal frame listener to perform actions when the frame is closed
+//                    f.addInternalFrameListener(new javax.swing.event.InternalFrameAdapter() {
+//                        @Override
+//                        public void internalFrameClosed(javax.swing.event.InternalFrameEvent e) {
+//                            // Reset the table when the frame is closed
+//                        	populateTree();
+//                        }
+//                    });
+//    			}
+//    			 f.toFront(); 
+//    		        f.moveToFront(); 
+//    			
+//    		}else {
+//    			JOptionPane.showMessageDialog(null, "Class ID doesn't exists");
+//    		}
+//    	}else{
+//    		JOptionPane.showMessageDialog(null, "Invalid Input");
+//    	};
+//    		}
     protected void btnManageClassActionPerformed(ActionEvent e) {
-    	if(helper.Valid.checkRegex2(Regex.INTNUM, txtInputClassID.getText())) {
-    		var classid =  Integer.parseInt(txtInputClassID.getText());
+
     		var conn = ConnectDB.getCon();
-    		if(helper.Valid.checkClassExists(conn, classid)) {
+    		if(helper.Valid.checkClassExists(conn, classId)) {
     			var f = ManageClass.getInstance();
     			
-    			f.setClassId(classid);
+    			f.setClassId(classId);
     			if(!f.isVisible()) {
     				f.setVisible(true);
     				desktopPane.add(f);
@@ -664,10 +671,8 @@ public class MFrame_ClassManagePanel2 extends JPanel {
     		}else {
     			JOptionPane.showMessageDialog(null, "Class ID doesn't exists");
     		}
-    	}else{
-    		JOptionPane.showMessageDialog(null, "Invalid Input");
-    	};
-    		}
+    	
+    	}
     protected void btnAddClassActionPerformed(ActionEvent e) {
     	
     			var f = AddClass.getInstance();
@@ -751,6 +756,7 @@ public class MFrame_ClassManagePanel2 extends JPanel {
     protected void treeValueChanged(TreeSelectionEvent e) {
         var classInfo = selectClassInfoByClassName();
         
+        
         if (classInfo == null) {
             System.err.println("No class selected or data not found.");
             return; // Exit if no class is selected
@@ -760,14 +766,15 @@ public class MFrame_ClassManagePanel2 extends JPanel {
         var courseDao = new CourseDao();
         var teachDao = new EmployeeDao();
         var enrollStuDao = new EnrollStuDao();
+        classId = classInfo.getClassId();
         
-
         lblClName.setText(classInfo.getClassName());
-        lblStartDate.setText(classInfo.getStartDate().toString());
-        lblEndDate.setText(classInfo.getEndDate().toString());
+        lblStartDate.setText(classInfo.getStartDate() != null ? classInfo.getStartDate().toString() : "N/A");
+        lblEndDate.setText(classInfo.getEndDate() != null ? classInfo.getEndDate().toString() : "N/A");
         lblStuCounts.setText(String.valueOf(enrollStuDao.countStudentList(classInfo)));
         lblCourseName.setText(courseDao.selectCourseById(classInfo.getCourseId()).getCourseName());
         lblClassID_2.setText(String.valueOf(classInfo.getClassId()));
+//        txtInputClassID.setText(String.valueOf(classInfo.getClassId()));
         
         var teachId = classInfo.getTeachId();
         var teachName = teachDao.selectEmpNameById(teachId);

@@ -14,24 +14,26 @@ import service.ConnectDB;
 
 public class AccountDao {
 
-	public boolean validateAccount(String accEmail, String accPass) {
+	public String validateAccount(String accEmail, String accPass) {
         try (
             var conn = ConnectDB.getCon();
 				    var cs = conn.prepareCall("{CALL ValidateAccount(?, ?)}")
         ) {
 					cs.setString(1, accEmail);
 					cs.setString(2, accPass);
-            try (var rs = cs.executeQuery()) {
-                if (rs.next()) {
-									return rs.getInt("IsValid") == 1;
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            return false;
+					try (var rs = cs.executeQuery()) {
+						if (rs.next() && rs.getInt("IsValid") == 1) {
+							var roleId = rs.getInt("roleId");
+							// You can use roleId here if needed
+							return "Valid account with roleId: " + roleId;
+						}
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+					return "Invalid account";
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return "Error occurred";
         }
     }
 
@@ -49,11 +51,9 @@ public class AccountDao {
 					acc.setAccStatus(rs.getBoolean("accStatus"));
 					acc.setEmpId(rs.getInt("empId"));
 					acc.setRoleId(rs.getInt("roleId"));
-
-					// only add non-admin account
-					if (acc.getRoleId() != 1) {
-						list.add(acc);
-					}
+					list.add(acc);
+					
+					
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -81,6 +81,7 @@ public class AccountDao {
 					acc.setAccStatus(rs.getBoolean("accStatus"));
 					acc.setEmpId(rs.getInt("empId"));
 					acc.setRoleId(rs.getInt("roleId"));
+					list.add(acc);
 				}
 
 			}catch(Exception e) {
@@ -128,20 +129,20 @@ public class AccountDao {
 		}
 
 		public void updateAccount(Account acc) {
-			try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call updateAcc(?, ?, ?, ?, ?, ?, ?)}")) {
+			try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call updateAcc(?, ?, ?, ?, ?, ?)}")) {
 				cs.setInt(1, acc.getAccId());
 				cs.setString(2, acc.getAccEmail());
 				cs.setString(3, acc.getAccPass());
 				cs.setInt(4, acc.getRoleId());
-				cs.setDate(5, java.sql.Date.valueOf(acc.getAccCreateDate()));
-				cs.setBoolean(6, acc.getAccStatus());
-				cs.setInt(7, acc.getEmpId());
+				cs.setBoolean(5, acc.getAccStatus());
+				cs.setInt(6, acc.getEmpId());
 				cs.execute();
 				JOptionPane.showMessageDialog(null, "Update successfully!");
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 		}
+		
 		
 		
 //		Phuong part

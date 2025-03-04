@@ -5,6 +5,8 @@ import java.sql.Date;
 public class Enrollment {
 	private int enrollId;
 	private Date enrollDate;
+	private int stuId;
+	private int classId;
 
 	public Enrollment() {}
 
@@ -30,11 +32,28 @@ public class Enrollment {
 		this.enrollDate = enrollDate;
 	}
 
+	public int getStuId() {
+		return stuId;
+	}
+
+	public void setStuId(int stuId) {
+		this.stuId = stuId;
+	}
+
+	public int getClassId() {
+		return classId;
+	}
+
+	public void setClassId(int classId) {
+		this.classId = classId;
+	}
 
 	@Override
 	public String toString() {
-		return "Enrollment [enrollId=" + enrollId + ", enrollDate=" + enrollDate + "]";
+		return "Enrollment [enrollId=" + enrollId + ", enrollDate=" + enrollDate + ", stuId=" + stuId + ", classId="
+				+ classId + "]";
 	}
+
 
 
 

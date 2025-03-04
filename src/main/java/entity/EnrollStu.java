@@ -1,16 +1,17 @@
 package entity;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 public class EnrollStu {
 	private int enrollId;
-	private Date enrollDate;
+	private LocalDate enrollDate;
+	private int stuId;
 	private Student student;
 	private int classId;
 
 	public EnrollStu() {}
 
-	public EnrollStu(int enrollId, Date enrollDate) {
+	public EnrollStu(int enrollId, LocalDate enrollDate) {
 		super();
 		this.enrollId   = enrollId;
 		this.enrollDate = enrollDate;
@@ -24,11 +25,11 @@ public class EnrollStu {
 		this.enrollId = enrollId;
 	}
 
-	public Date getEnrollDate() {
+	public LocalDate getEnrollDate() {
 		return enrollDate;
 	}
 
-	public void setEnrollDate(Date enrollDate) {
+	public void setEnrollDate(LocalDate enrollDate) {
 		this.enrollDate = enrollDate;
 	}
 
@@ -49,10 +50,21 @@ public class EnrollStu {
 		this.classId = classId;
 	}
 
+	public int getStuId() {
+		return stuId;
+	}
+
+	public void setStuId(int stuId) {
+		this.stuId = stuId;
+	}
+
 	@Override
 	public String toString() {
-		return "Enrollment [enrollId=" + enrollId + ", enrollDate=" + enrollDate + "]";
+		return "EnrollStu [enrollId=" + enrollId + ", enrollDate=" + enrollDate + ", stuId=" + stuId + ", student="
+				+ student + ", classId=" + classId + "]";
 	}
+
+	
 
 
 

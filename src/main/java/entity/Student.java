@@ -1,12 +1,12 @@
 package entity;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Student {
 	private int     stuId;
 	private String  stuName;
 	private boolean stuGender;
-	private Date    stuDob;
+	private LocalDate    stuDob;
 	private String  stuEmail;
 	private String  stuPhone;
 	private String  stuAddress;
@@ -14,7 +14,7 @@ public class Student {
 
 
 	public Student() {};
-	public Student(int stuId, String stuName, boolean stuGender, Date stuDob, String stuEmail, String stuPhone,
+	public Student(int stuId, String stuName, boolean stuGender, LocalDate stuDob, String stuEmail, String stuPhone,
 	    String stuAddress, String stuImage) {
 		super();
 		this.stuId      = stuId;
@@ -39,16 +39,16 @@ public class Student {
 	public void setStuName(String stuName) {
 		this.stuName = stuName;
 	}
-	public boolean isstuGender() {
+	public boolean isStuGender() {
 		return stuGender;
 	}
-	public void setstuGender(boolean stuGender) {
+	public void setStuGender(boolean stuGender) {
 		this.stuGender = stuGender;
 	}
-	public Date getStuDob() {
+	public LocalDate getStuDob() {
 		return stuDob;
 	}
-	public void setStuDob(Date stuDob) {
+	public void setStuDob(LocalDate stuDob) {
 		this.stuDob = stuDob;
 	}
 	public String getStuEmail() {

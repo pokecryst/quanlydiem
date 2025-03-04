@@ -12,19 +12,20 @@ public class Employee {
 	private String empAddress;
 	private LocalDate empHireDate;
 	private String empImage;
+	private int       roleId;
 
 	public Employee() {};
-	public Employee(int empId, String empName, Boolean empGender, LocalDate empDob, String empPhone, String empAddress, LocalDate empHireDate,
-	    String empImage) {
-		super();
-		this.empId       = empId;
-		this.empName     = empName;
-		this.empGender   = empGender;
-		this.empDob      = empDob;
-		this.empPhone    = empPhone;
-		this.empAddress  = empAddress;
-		this.empHireDate = empHireDate;
-		this.empImage    = empImage;
+	public Employee(int empId, String empName, Boolean empGender, LocalDate empDob, String empPhone, String empAddress,
+		    LocalDate empHireDate, String empImage) {
+
+			this.empId       = empId;
+			this.empName     = empName;
+			this.empGender   = empGender;
+			this.empDob      = empDob;
+			this.empPhone    = empPhone;
+			this.empAddress  = empAddress;
+			this.empHireDate = empHireDate;
+			this.empImage    = empImage;
 	}
 
 	public int getEmpId() {
@@ -47,6 +48,9 @@ public class Employee {
 		return empGender;
 	}
 	
+	public Boolean getEmpGender() {
+		return empGender;
+	}
 	
 	
 	public void setEmpGender(Boolean empGender) {
@@ -91,6 +95,14 @@ public class Employee {
 	}
 	public void setEmpPhone(String empPhone) {
 		this.empPhone = empPhone;
+	}
+	
+	public int getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(int roleId) {
+		this.roleId = roleId;
 	}
 
 //	@Override

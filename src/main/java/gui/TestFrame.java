@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.BorderLayout;
 
+
 import java.awt.Color;
 import java.awt.EventQueue;
 
@@ -15,8 +16,12 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import entity.Account;
-import sub.MFrame_ClassManagePanel;
+import service.ConnectDB;
+import sub.AccountInfo;
+import sub.AdminSubFrame;
 import sub.MFrame_ClassManagePanel2;
+import sub.ManageClass;
+import sub.StaffSubFrame;
 
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -31,6 +36,7 @@ public class TestFrame extends JFrame {
     private JMenu mnNewMenu;
     private JMenuItem mntmTeacherAccInfo;
     private Account currentAcc  = new Account();
+    private JDesktopPane desktopPane;
 
 	/**
 	 * Launch the application.
@@ -57,7 +63,9 @@ public class TestFrame extends JFrame {
 		setBackground(new Color(255, 255, 255));
 		setTitle("Test Frame");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 800, 616);
+        setLocationRelativeTo(null); // Center the window
+        setResizable(false);
+        setBounds(100, 100, 1300, 800);
         
         menuBar = new JMenuBar();
         setJMenuBar(menuBar);
@@ -76,11 +84,24 @@ public class TestFrame extends JFrame {
         contentPane.setBackground(Color.RED);
         setContentPane(contentPane);
         
+        desktopPane = new JDesktopPane();
+        contentPane.add(desktopPane, BorderLayout.CENTER);
+        desktopPane.setLayout(new BorderLayout(0, 0));
         
-        MFrame_ClassManagePanel2 mainPanel = new MFrame_ClassManagePanel2(acc);
-        mainPanel.setBackground(new Color(255, 255, 255));
-//        mainPanel.getCurrentAccRole(acc);
-        contentPane.add(mainPanel, BorderLayout.CENTER);
+        if(acc.getRoleId()==1) {
+        	AdminSubFrame mainPanel = new AdminSubFrame(acc);
+            mainPanel.setBackground(new Color(255, 255, 255));
+            desktopPane.add(mainPanel, BorderLayout.CENTER);
+        }else if(acc.getRoleId()==2) {
+        	 MFrame_ClassManagePanel2 mainPanel = new MFrame_ClassManagePanel2(acc);
+             mainPanel.setBackground(new Color(255, 255, 255));
+             desktopPane.add(mainPanel, BorderLayout.CENTER);
+        }else {
+        	StaffSubFrame mainPanel = new StaffSubFrame(acc);
+            mainPanel.setBackground(new Color(255, 255, 255));
+            desktopPane.add(mainPanel, BorderLayout.CENTER);
+        }
+       
 		
 	}
 	
@@ -90,7 +111,20 @@ public class TestFrame extends JFrame {
 	
 	
 	protected void showInfo(ActionEvent e) {
-		JOptionPane.showMessageDialog(this, currentAcc.toString());
+//		JOptionPane.showMessageDialog(this, currentAcc.toString());
+		var conn = ConnectDB.getCon();
+		
+			var f = AccountInfo.getInstance();
+			
+			f.setAccount(currentAcc);
+			if(!f.isVisible()) {
+				f.setVisible(true);
+				desktopPane.add(f);
+			}
+			 f.toFront(); 
+		        f.moveToFront(); 
+			
+		
 	}
 
 }

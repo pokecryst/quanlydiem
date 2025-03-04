@@ -26,6 +26,28 @@ public class EnrollmentDao {
 		return list;
 	}
 	
+	public List<Enrollment> selectByStudentId(int studentId) {
+		List<Enrollment> list = new ArrayList<>();
+
+		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call selectByStudentId(?)}")) {
+			cs.setInt(1, studentId);
+			try (var rs = cs.executeQuery()) {
+				while (rs.next()) {
+					var enrollment = new Enrollment();
+					enrollment.setEnrollId(rs.getInt("enrollId"));
+					enrollment.setStuId(rs.getInt("stuId"));
+					enrollment.setClassId(rs.getInt("classId"));
+					enrollment.setEnrollDate(rs.getDate("enrollDate"));
+					list.add(enrollment);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return list;
+	}
+	
 	public void delete(int enrollId) {
 		try (var conn = ConnectDB.getCon();
 			var cs = conn.prepareCall("{call deleteEnrollment(?)}");

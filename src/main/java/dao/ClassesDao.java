@@ -1,7 +1,10 @@
 package dao;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JOptionPane;
 
 import entity.Classes;
 import service.ConnectDB;
@@ -137,5 +140,75 @@ public class ClassesDao {
 			e.printStackTrace();
 		}
 	}
+	
+	public void delete(int classId) {
+	    String sql = "{call deleteClass(?)}";
+	    
+	    try (var conn = ConnectDB.getCon();
+	         var cs = conn.prepareCall(sql)) {
+	        
+	        cs.setInt(1, classId);
+	        cs.execute();
+
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	       
+	    }
+	}
+
+	
+
+	public void addClass(Classes classes) {
+		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call createClass(?,?,?,?,?)}");) {
+			cs.setString(1, classes.getClassName());
+			cs.setDate(2, classes.getStartDate());
+			cs.setDate(3, classes.getEndDate());
+			cs.setInt(4, classes.getCourseId());
+			JOptionPane.showMessageDialog(null, classes.getCourseId());
+			cs.setInt(5, classes.getTeachId());
+			JOptionPane.showMessageDialog(null, classes.getTeachId());
+			cs.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public List<Classes> pagingClass(int currentPage, int numberOfRows) {
+	    List<Classes> list = new ArrayList<>();
+	    try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call pagingClass(?, ?)}")) {
+	        cs.setInt(1, currentPage);
+	        cs.setInt(2, numberOfRows);
+	        var rs = cs.executeQuery();
+	        while (rs.next()) {
+	            var classes = new Classes();
+	            classes.setClassId(rs.getInt("classId"));
+	            classes.setClassName(rs.getString("className"));
+	            classes.setStartDate(rs.getDate("startDate"));
+	            classes.setEndDate(rs.getDate("endDate"));
+	            classes.setCourseId(rs.getInt("courseId"));
+	            classes.setTeachId(rs.getInt("empId"));
+
+	            list.add(classes);
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    return list;
+	}
+	
+	public int countClass() {
+		var count = 0;
+		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call countClass()}")) {
+			var rs = cs.executeQuery();
+			if (rs.next()) {
+				count = rs.getInt("total");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return count;
+	}
+
 
 }

@@ -27,6 +27,7 @@ public class EmployeeDao {
 				emp.setEmpAddress(rs.getString("empAddress"));
 				emp.setEmpHireDate(rs.getDate("empHireDate").toLocalDate());
 				emp.setEmpImage(rs.getString("empImage"));
+				emp.setRoleId(rs.getInt("roleId"));
 				list.add(emp);
 			}
 		} catch (SQLException e) {
@@ -119,15 +120,17 @@ public class EmployeeDao {
 	// update employee
 	public void updateEmployee(Employee emp) {
 		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call updateEmp(?, ?, ?, ?, ?, ?, ?, ?)}")) {
-			cs.setInt(1, emp.getEmpId());
-			cs.setString(2, emp.getEmpName());
-			cs.setBoolean(3, emp.isEmpGender());
+			cs.setString(1, emp.getEmpName());
+			cs.setBoolean(2, emp.getEmpGender());
+			cs.setDate(3, java.sql.Date.valueOf(emp.getEmpDob()));
 			cs.setString(4, emp.getEmpPhone());
 			cs.setString(5, emp.getEmpAddress());
-			cs.setDate(6, java.sql.Date.valueOf(emp.getEmpHireDate()));
-			cs.setDate(7, java.sql.Date.valueOf(emp.getEmpDob()));
-			cs.setString(8, emp.getEmpImage());
+			cs.setString(6, emp.getEmpImage());
+			cs.setInt(7, emp.getRoleId());
+			cs.setInt(8, emp.getEmpId());
+
 			cs.execute();
+			JOptionPane.showMessageDialog(null, "Update Success");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -136,12 +139,12 @@ public class EmployeeDao {
 	public void insertEmployee(Employee emp) {
 		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call createEmp(?, ?, ?, ?, ?, ?, ?)}")) {
 			cs.setString(1, emp.getEmpName());
-			cs.setBoolean(2, emp.isEmpGender());
+			cs.setBoolean(2, emp.getEmpGender());
 			cs.setDate(3, java.sql.Date.valueOf(emp.getEmpDob()));
-			cs.setDate(4, java.sql.Date.valueOf(emp.getEmpHireDate()));
-			cs.setString(5, emp.getEmpPhone());
-			cs.setString(6, emp.getEmpAddress());
-			cs.setString(7, emp.getEmpImage());
+			cs.setString(4, emp.getEmpPhone());
+			cs.setString(5, emp.getEmpAddress());
+			cs.setString(6, emp.getEmpImage());
+			cs.setInt(7, emp.getRoleId());
 			cs.execute();
 			JOptionPane.showMessageDialog(null, "Add Success");
 		} catch (SQLException e) {
@@ -149,6 +152,113 @@ public class EmployeeDao {
 			JOptionPane.showMessageDialog(null, "Add Fail");
 		}
 	}
+	
+	// test function
+		public Integer getRoleIdByEmpId(Integer empId) {
+			var sql = "{call GetRoleIdByEmpId(?)}";
+			try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall(sql)) {
+				cs.setInt(1, empId);
+				try (var rs = cs.executeQuery()) {
+					if (rs.next()) {
+						return rs.getInt("roleId");
+					}
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+		
+		//paging
+		public List<Employee> pagingTeacher(Integer currentPage, Integer numberOfRows) {
+			List<Employee> list = new ArrayList<>();
+			try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call pagingTeacher(?, ?)}")) {
+				cs.setInt(1, currentPage);
+				cs.setInt(2, numberOfRows);
+				try (var rs = cs.executeQuery()) {
+					while (rs.next()) {
+						var emp = new Employee();
+						emp.setEmpId(rs.getInt("empId"));
+						emp.setEmpName(rs.getString("empName"));
+						emp.setEmpGender(rs.getBoolean("empGender"));
+						emp.setEmpDob(rs.getDate("empDob").toLocalDate());
+						emp.setEmpPhone(rs.getString("EmpPhone"));
+						emp.setEmpAddress(rs.getString("empAddress"));
+						emp.setEmpHireDate(rs.getDate("empHireDate").toLocalDate());
+						emp.setEmpImage(rs.getString("empImage"));
+						emp.setRoleId(rs.getInt("roleId"));
+						list.add(emp);
+					}
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return list;
+		}
+		
+		public Integer countTeacher() {
+			var count = 0;
+
+			try (var conn = ConnectDB.getCon();
+					var cs = conn.prepareCall("{call countTeacher()}");
+					var rs = cs.executeQuery();
+					) {
+			
+				if (rs.next()) {
+					count = rs.getInt("total");
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return count;
+		}
+		
+		public List<Employee> pagingEmp(Integer currentPage, Integer numberOfRows) {
+			List<Employee> list = new ArrayList<>();
+			try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call pagingEmp(?, ?)}")) {
+				cs.setInt(1, currentPage);
+				cs.setInt(2, numberOfRows);
+				try (var rs = cs.executeQuery()) {
+					while (rs.next()) {
+						var emp = new Employee();
+						emp.setEmpId(rs.getInt("empId"));
+						emp.setEmpName(rs.getString("empName"));
+						emp.setEmpGender(rs.getBoolean("empGender"));
+						emp.setEmpDob(rs.getDate("empDob").toLocalDate());
+						emp.setEmpPhone(rs.getString("EmpPhone"));
+						emp.setEmpAddress(rs.getString("empAddress"));
+						emp.setEmpHireDate(rs.getDate("empHireDate").toLocalDate());
+						emp.setEmpImage(rs.getString("empImage"));
+						emp.setRoleId(rs.getInt("roleId"));
+						list.add(emp);
+					}
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return list;
+		}
+		
+		public Integer countEmp() {
+			var count = 0;
+
+			try (var conn = ConnectDB.getCon();
+					var cs = conn.prepareCall("{call countEmp()}");
+					var rs = cs.executeQuery();
+					) {
+			
+				if (rs.next()) {
+					count = rs.getInt("total");
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return count;
+		}
 }
 
 
