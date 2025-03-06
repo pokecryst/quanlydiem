@@ -151,8 +151,9 @@ public class AccountInfo extends JInternalFrame {
 		lblEmail_1.setBounds(222, 72, 184, 21);
 		panel.add(lblEmail_1);
 		
-		JOptionPane.showMessageDialog(this, this.getWidth());
-        JOptionPane.showMessageDialog(this, this.getHeight());
+		
+//		JOptionPane.showMessageDialog(this, this.getWidth());
+//        JOptionPane.showMessageDialog(this, this.getHeight());
 
 	}
 	@Override
@@ -173,9 +174,9 @@ public class AccountInfo extends JInternalFrame {
 		var newPass = new String(passwordFieldNew.getPassword());
 		var newPass1 = new String(passwordFieldNew_1.getPassword());
 
-		if (!currentPass.equals(acc.getAccPass())) {
-			JOptionPane.showMessageDialog(this, "Current password is incorrect");
-			return;
+		if (!accdao.validatePass(currentPass, acc)) {
+		    JOptionPane.showMessageDialog(this, acc.getAccPass());
+		    return;
 		}
 
 		if (!newPass.equals(newPass1)) {

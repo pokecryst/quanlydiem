@@ -109,7 +109,7 @@ public class AcountSub extends JPanel {
 		cbbRoleId.setBounds(672, 406, 200, 30);
 		add(cbbRoleId);
 
-		chckStatusAcc = new JCheckBox("Unactive");
+		chckStatusAcc = new JCheckBox("Active");
 		chckStatusAcc.setBounds(672, 452, 200, 30);
 		add(chckStatusAcc);
 

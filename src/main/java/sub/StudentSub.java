@@ -247,14 +247,15 @@ public class StudentSub extends JPanel {
 		tablePageEnroll.setBounds(450, 376, 432, 265);
 		tablePageEnroll.setColumnNamesAndTypes(
 	            new String[]{
-	                "Enroll Id", "Enroll Date", "Class Name", "Course Name", "Stu ID"
+	                "Enroll Id", "Enroll Date", "Class Name", "Course Name", "Stu ID", "Status"
 	            },
 	            Map.of(
 	                0, Integer.class,
 	                1, Date.class,
 	                2, String.class,
 	                3, String.class,
-	                4, Integer.class
+	                4, Integer.class,
+	                5, Boolean.class
 	            )
 	        );
 		
@@ -303,7 +304,8 @@ public class StudentSub extends JPanel {
 	            java.sql.Date.valueOf(en.getEnrollDate()),
 	            cl.getClassName(),
 	            new CourseDao().selectCourseNameById(cl),
-	            en.getStuId()	            
+	            en.getStuId(),
+	            en.isPassStatus()
 	        });
 	    }
 	    return list;

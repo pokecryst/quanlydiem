@@ -7,22 +7,48 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import entity.Account;
 import entity.Classes;
 import entity.GradeStu;
 import service.ConnectDB;
 
 public class AccountDao {
+	
+	private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+//	public String validateAccount(String accEmail, String accPass) {
+//        try (
+//            var conn = ConnectDB.getCon();
+//				    var cs = conn.prepareCall("{CALL ValidateAccount(?, ?)}")
+//        ) {
+//					cs.setString(1, accEmail);
+//					cs.setString(2, accPass);
+//					try (var rs = cs.executeQuery()) {
+//						if (rs.next() && rs.getInt("IsValid") == 1) {
+//							var roleId = rs.getInt("roleId");
+//							// You can use roleId here if needed
+//							return "Valid account with roleId: " + roleId;
+//						}
+//					} catch (SQLException e) {
+//						e.printStackTrace();
+//					}
+//					return "Invalid account";
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            return "Error occurred";
+//        }
+//    }
 
 	public String validateAccount(String accEmail, String accPass) {
         try (
             var conn = ConnectDB.getCon();
-				    var cs = conn.prepareCall("{CALL ValidateAccount(?, ?)}")
+				    var cs = conn.prepareCall("{CALL ValidateAccountEmail(?)}")
         ) {
 					cs.setString(1, accEmail);
-					cs.setString(2, accPass);
 					try (var rs = cs.executeQuery()) {
-						if (rs.next() && rs.getInt("IsValid") == 1) {
+						if (rs.next() && rs.getInt("IsValid") == 1 && this.validatePass(accPass, rs.getString("accPass")) && rs.getBoolean("accStatus")) {
 							var roleId = rs.getInt("roleId");
 							// You can use roleId here if needed
 							return "Valid account with roleId: " + roleId;
@@ -36,6 +62,27 @@ public class AccountDao {
             return "Error occurred";
         }
     }
+	
+	public boolean validatePass(String inputtedPass, String accPass) {
+		return encoder.matches(inputtedPass, accPass);
+	}
+	
+	public boolean validatePass(String inputtedPass, Account acc) {
+		var check = false;
+		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call returnPassOnly(?)}")) {
+			
+			cs.setInt(1, acc.getAccId());
+			var rs = cs.executeQuery();
+			
+			while (rs.next()) {
+				check = encoder.matches(inputtedPass, rs.getString("accPass"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return check;
+		
+	}
 
 		public List<Account> selectAccount() {
 			List<Account> list = new ArrayList<>();
@@ -116,7 +163,7 @@ public class AccountDao {
 		public void insertAccount(Account acc) {
 			try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call insertAcc(?, ?, ?, ?, ?)}")) {
 				cs.setString(1, acc.getAccEmail());
-				cs.setString(2, acc.getAccPass());
+				cs.setString(2, acc.encodePass(acc.getAccPass()));
 				cs.setInt(3, acc.getRoleId());
 				cs.setBoolean(4, acc.getAccStatus());
 				cs.setInt(5, acc.getEmpId());
@@ -169,4 +216,8 @@ public class AccountDao {
 
 			return acc;
 		}
+		
+		
+		
+		
 }

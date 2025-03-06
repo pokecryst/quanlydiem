@@ -3,7 +3,9 @@ package entity;
 import java.sql.Date;
 import java.time.LocalDate;
 
-public class Employee {
+import helper.getID;
+
+public class Employee implements getID{
 	private int empId;
 	private String empName;
 	private Boolean empGender;
@@ -26,6 +28,10 @@ public class Employee {
 			this.empAddress  = empAddress;
 			this.empHireDate = empHireDate;
 			this.empImage    = empImage;
+	}
+	@Override
+	public int getID() {
+		return empId;
 	}
 
 	public int getEmpId() {

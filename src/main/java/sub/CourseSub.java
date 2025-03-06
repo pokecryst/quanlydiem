@@ -1,5 +1,7 @@
 package sub;
 
+import java.awt.BorderLayout;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -29,15 +31,19 @@ import javax.swing.table.DefaultTableModel;
 
 import com.toedter.calendar.JDateChooser;
 
+import dao.ClassStatusDao;
 import dao.ClassesDao;
 import dao.CourseDao;
 import dao.EmployeeDao;
+import dao.EnrollStuDao;
+import entity.ClassStatus;
 import entity.Classes;
 import entity.Course;
 import entity.Employee;
 import gui.TablePage;
 import gui.TablePage.DataFetcher;
 import gui.Paging.CountFetcher;
+import javax.swing.JDesktopPane;
 
 public class CourseSub extends JPanel {
 
@@ -71,13 +77,20 @@ public class CourseSub extends JPanel {
 	
 	private JComboBox<Course> cbbCourse = new JComboBox<>();
 	private JComboBox<Employee> cbbTeacher = new JComboBox<>();
+	private JComboBox<ClassStatus> cbbStatus = new JComboBox<>();
 	
 	private CourseDao courseDao = new CourseDao();
 	private EmployeeDao empDao = new EmployeeDao();
+	private EnrollStuDao enrollstuDao = new EnrollStuDao();
+	private ClassStatusDao clStatDao = new ClassStatusDao();
+	
 	private TablePage tablePageCourse;
 	private TablePage tablePageClasses;
 	private Map<Integer, Class<?>> columnMapping = new HashMap<>();
 	private Map<Integer, Consumer<Object>> accountsMappings = new HashMap<>();
+	private JTextField txtNumFail;
+	private JTextField txtStuCount;
+	private JDesktopPane desktopPane;
 
 
 
@@ -85,127 +98,168 @@ public class CourseSub extends JPanel {
 	 * Create the panel.
 	 */
 	public CourseSub() {
-		setLayout(null);
+//		setLayout(null);	
+		setLayout(new BorderLayout(0, 0));
 		setBounds(0, 0, 892, 724);
+    	
+//   	 // Create and add content panel
+//		contentPane = new JPanel();
+//		contentPane.setBorder(null);
+//		contentPane.setLayout(new BorderLayout(0, 0));
+//		contentPane.setBackground(new Color(255, 255, 255));
+//		add(contentQLD_GV);
+		
+		 desktopPane = new JDesktopPane();
+	     add(desktopPane, BorderLayout.CENTER);
+	     desktopPane.setLayout(null);
 
 		lblNewLabel = new JLabel("Course");
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel.setFont(new Font("Times New Roman", Font.BOLD, 20));
 		lblNewLabel.setBounds(10, 11, 578, 30);
-		add(lblNewLabel);
+		desktopPane.add(lblNewLabel);
 
 		lblCourseId = new JLabel("Course ID:");
 		lblCourseId.setBounds(598, 41, 90, 30);
-		add(lblCourseId);
+		desktopPane.add(lblCourseId);
 
 		txtCourseId = new JTextField();
 		txtCourseId.setColumns(10);
 		txtCourseId.setBounds(698, 41, 180, 30);
-		add(txtCourseId);
+		desktopPane.add(txtCourseId);
 
 		lblCourseName = new JLabel("Course Name:");
 		lblCourseName.setBounds(598, 85, 90, 30);
-		add(lblCourseName);
+		desktopPane.add(lblCourseName);
 
 		txtCourseName = new JTextField();
 		txtCourseName.setColumns(10);
 		txtCourseName.setBounds(698, 82, 180, 30);
-		add(txtCourseName);
+		desktopPane.add(txtCourseName);
 
 		lblCourseDesc = new JLabel("Course DESC:");
 		lblCourseDesc.setBounds(598, 154, 90, 30);
-		add(lblCourseDesc);
+		desktopPane.add(lblCourseDesc);
 
 		txtCourseDesc = new JTextPane();
 		txtCourseDesc.setBorder(new LineBorder(new Color(192, 192, 192)));
 		txtCourseDesc.setBounds(698, 126, 180, 85);
-		add(txtCourseDesc);
+		desktopPane.add(txtCourseDesc);
 
 		lblCourseDuration = new JLabel("Duration:");
 		lblCourseDuration.setBounds(598, 222, 90, 30);
-		add(lblCourseDuration);
+		desktopPane.add(lblCourseDuration);
 
 		txtCourseDura = new JTextField();
 		txtCourseDura.setColumns(10);
 		txtCourseDura.setBounds(698, 222, 180, 30);
-		add(txtCourseDura);
+		desktopPane.add(txtCourseDura);
 
 		btnAddCourse = new JButton("Add");
 		btnAddCourse.addActionListener(this::btnAddCourseActionPerformed);
 		btnAddCourse.setBounds(598, 281, 89, 30);
-		add(btnAddCourse);
+		desktopPane.add(btnAddCourse);
 
 		btnUpdateCourse = new JButton("Update");
 		btnUpdateCourse.addActionListener(this::btnUpdateCourseActionPerformed);
 		btnUpdateCourse.setBounds(698, 281, 89, 30);
-		add(btnUpdateCourse);
+		desktopPane.add(btnUpdateCourse);
 
 		btnDeleteCourse = new JButton("Delete");
 		btnDeleteCourse.setBounds(797, 281, 89, 30);
-		add(btnDeleteCourse);
+		desktopPane.add(btnDeleteCourse);
 
 		lblNewLabel_1 = new JLabel("Class");
 		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel_1.setFont(new Font("Times New Roman", Font.BOLD, 20));
 		lblNewLabel_1.setBounds(10, 352, 578, 30);
-		add(lblNewLabel_1);
+		desktopPane.add(lblNewLabel_1);
 
 		lblClassId = new JLabel("Class ID:");
 		lblClassId.setBounds(598, 382, 90, 30);
-		add(lblClassId);
+		desktopPane.add(lblClassId);
 
 		textField_3 = new JTextField();
 		textField_3.setColumns(10);
 		textField_3.setBounds(698, 382, 180, 30);
-		add(textField_3);
+		desktopPane.add(textField_3);
 
 		lblNewLabel_2 = new JLabel("Class Name:");
 		lblNewLabel_2.setBounds(598, 423, 90, 30);
-		add(lblNewLabel_2);
+		desktopPane.add(lblNewLabel_2);
 
 		textField_4 = new JTextField();
 		textField_4.setColumns(10);
 		textField_4.setBounds(698, 423, 180, 30);
-		add(textField_4);
+		desktopPane.add(textField_4);
 
 		lblNewLabel_3 = new JLabel("Start Date:");
 		lblNewLabel_3.setBounds(598, 464, 90, 30);
-		add(lblNewLabel_3);
+		desktopPane.add(lblNewLabel_3);
 
 		lblNewLabel_4 = new JLabel("End Date:");
 		lblNewLabel_4.setBounds(598, 505, 90, 30);
-		add(lblNewLabel_4);
+		desktopPane.add(lblNewLabel_4);
 
 		lblNewLabel_5 = new JLabel("Course ID:");
 		lblNewLabel_5.setBounds(598, 547, 90, 30);
-		add(lblNewLabel_5);
+		desktopPane.add(lblNewLabel_5);
 
 		lblNewLabel_6 = new JLabel("Emp ID:");
 		lblNewLabel_6.setBounds(598, 588, 90, 30);
-		add(lblNewLabel_6);
+		desktopPane.add(lblNewLabel_6);
 
 		btnAddClass = new JButton("Add");
 		btnAddClass.addActionListener(this::btnAddClassActionPerformed);
-		btnAddClass.setBounds(598, 637, 89, 30);
-		add(btnAddClass);
+		btnAddClass.setBounds(599, 664, 89, 30);
+		desktopPane.add(btnAddClass);
 
 		btnAddUpdate = new JButton("Update");
 		btnAddUpdate.addActionListener(this::btnAddUpdateActionPerformed);
-		btnAddUpdate.setBounds(698, 637, 89, 30);
-		add(btnAddUpdate);
+		btnAddUpdate.setBounds(698, 664, 89, 30);
+		desktopPane.add(btnAddUpdate);
 
 		btnDelClass = new JButton("Delete");
-		btnDelClass.setBounds(797, 637, 89, 30);
+		btnDelClass.setBounds(797, 664, 89, 30);
 		btnDelClass.addActionListener(this::btnDeleteClassActionPerformed);
-		add(btnDelClass);
+		desktopPane.add(btnDelClass);
 
 		dateChooser = new JDateChooser();
 		dateChooser.setBounds(698, 464, 180, 30);
-		add(dateChooser);
+		desktopPane.add(dateChooser);
 
 		dateChooser_1 = new JDateChooser();
 		dateChooser_1.setBounds(698, 505, 180, 30);
-		add(dateChooser_1);
+		desktopPane.add(dateChooser_1);
+		
+		JLabel lblNumFail = new JLabel("Failed:");
+		lblNumFail.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblNumFail.setBounds(30, 602, 89, 21);
+		desktopPane.add(lblNumFail);
+		
+		txtNumFail = new JTextField();
+		txtNumFail.setEditable(false);
+		txtNumFail.setText("0");
+		txtNumFail.setColumns(10);
+		txtNumFail.setBounds(129, 603, 70, 19);
+		desktopPane.add(txtNumFail);
+		
+		JLabel lblStuCount = new JLabel("Student count: ");
+		lblStuCount.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblStuCount.setBounds(20, 624, 100, 21);
+		desktopPane.add(lblStuCount);
+		
+		txtStuCount = new JTextField();
+		txtStuCount.setEditable(false);
+		txtStuCount.setText("0");
+		txtStuCount.setColumns(10);
+		txtStuCount.setBounds(129, 625, 70, 19);
+		desktopPane.add(txtStuCount);
+		
+		JButton btnClassDetails = new JButton("Details");
+		btnClassDetails.setBounds(450, 606, 107, 30);
+		btnClassDetails.addActionListener(this::btnDetailsActionPerformed);
+		desktopPane.add(btnClassDetails);
 
 //		cbbCourse = new JComboBox();
 //		
@@ -235,43 +289,58 @@ public class CourseSub extends JPanel {
 				3, value -> txtCourseDura.setText(value.toString())	
 				);
 		tablePageCourse.setFieldMappings(accountsMappings);
-		add(tablePageCourse);
+		desktopPane.add(tablePageCourse);
 		tablePageCourse.resetTable();
 		
 		tablePageClasses = new TablePage(
 				this::loadClass,
 				this::countClass);
-		tablePageClasses.setBounds(20, 384, 546, 283);
+		tablePageClasses.setBounds(20, 384, 546, 212);
 		tablePageClasses.setColumnNamesAndTypes(
-				new String[] {"Class ID", "Class Name", "Start Date", "End Date", "Course ID", "Emp ID"},
+				new String[] {"Class ID", "Class Name", "Start Date", "End Date", "Course ID", "Emp ID", "Status"},
 				Map.of(
 						0, Integer.class, 1, String.class, 2, Date.class, 3, Date.class, 4, Integer.class, 5,
-						Integer.class
+						Integer.class, 6, String.class
 			                
 					));
 		accountsMappings = Map.of(
-				0, value -> textField_3.setText(value.toString()),
+				0, value ->{
+					textField_3.setText(value.toString());
+					txtStuCount.setText(enrollstuDao.countStudentList((Integer) value).toString());
+					txtNumFail.setText(enrollstuDao.countStudentFailOfClass((Integer) value).toString());
+				},
 				1, value -> textField_4.setText(value.toString()),
 				2, value -> helper.FieldsMapper.setDateChooser(dateChooser, value),
 				3, value -> helper.FieldsMapper.setDateChooser(dateChooser_1, value),
 				4, value -> cbbCourse.setSelectedItem(courseDao.selectCourseById((Integer) value)),
-				5, value -> cbbTeacher.setSelectedItem(empDao.selectEmpByID((Integer) value))
+				5, value -> cbbTeacher.setSelectedItem(empDao.selectEmpByID((Integer) value)),
+				6, value -> cbbStatus.setSelectedItem(clStatDao.selectClassStatusByID((Integer)value))
 				);
 		tablePageClasses.setFieldMappings(accountsMappings);
-		add(tablePageClasses);
+		desktopPane.add(tablePageClasses);
 		tablePageClasses.resetTable();
 		
 //		loadEmployeeIdsIntoComboBox();
 		cbbCourse.setBounds(698, 547, 180, 30);
 		cbbTeacher.setBounds(698, 588, 180, 30);
+		cbbStatus.setBounds(698, 624, 180, 30);
 		setCbbCourse();
-		add(cbbCourse);
-		add(cbbTeacher);
+		desktopPane.add(cbbCourse);
+		desktopPane.add(cbbTeacher);
+		desktopPane.add(cbbStatus);
+			
 		
 		JButton btnRefresh = new JButton("Refresh All");
 		btnRefresh.setBounds(30, 677, 89, 30);
 		btnRefresh.addActionListener(e -> resetEverything());
-		add(btnRefresh);
+		desktopPane.add(btnRefresh);
+		
+		JLabel lblClStatus = new JLabel("Status:");
+		lblClStatus.setBounds(598, 624, 90, 30);
+		desktopPane.add(lblClStatus);
+		
+		
+		
 	}
 
 	// Load employee ids into combo box
@@ -292,14 +361,20 @@ public class CourseSub extends JPanel {
 	public void setCbbCourse() {
 		var courseDao = new CourseDao();
 		var courseTeach = new EmployeeDao();
+		var clStatusDao = new ClassStatusDao();
 		
 		List<Course> items = courseDao.selectAll();
 		List<Employee> items2 = courseTeach.selectTeacher();
+		List<ClassStatus> items3 = clStatusDao.selectAll();
+		
 		for (Course item : items) {
 		    this.cbbCourse.addItem(item);
 		}
 		for (Employee item : items2) {
 			this.cbbTeacher.addItem(item);
+		}
+		for (ClassStatus item : items3) {
+			this.cbbStatus.addItem(item);
 		}
 		
 		resetEverything();
@@ -338,7 +413,9 @@ public List<Object[]> loadCourse(int currentPage, int numberOfRows) {
 	            cl.getStartDate(),   
 	            cl.getEndDate(),     
 	            cl.getCourseId(),    
-	            cl.getTeachId()       
+	            cl.getTeachId(),
+	            cl.getClStatId()
+	                  
 	        });
 	    }
 	    return list;
@@ -389,19 +466,50 @@ public List<Object[]> loadCourse(int currentPage, int numberOfRows) {
 
 // event when click on button update class
 	protected void btnAddUpdateActionPerformed(ActionEvent e) {
+
 		var classes = new Classes();
+		if(textField_3.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(null, "ClassID is Empty");
+			return;
+		}
+		
 		classes.setClassId(Integer.parseInt(textField_3.getText()));
 		classes.setClassName(textField_4.getText());
 		classes.setStartDate(new java.sql.Date(dateChooser.getDate().getTime()));
 		classes.setEndDate(new java.sql.Date(dateChooser_1.getDate().getTime()));
-		JOptionPane.showMessageDialog(null, cbbCourse.getSelectedItem());
-		classes.setCourseId((Integer) cbbCourse.getSelectedItem());
-		JOptionPane.showMessageDialog(null, cbbTeacher.getSelectedItem());
-		classes.setTeachId((Integer) cbbTeacher.getSelectedItem());
+
+		classes.setCourseId(helper.Fetcher.getSelectedId(cbbCourse));
+
+		classes.setTeachId(helper.Fetcher.getSelectedId(cbbTeacher));
+		classes.setClStatId(helper.Fetcher.getSelectedId(cbbStatus));
 
 		var dao = new ClassesDao();
 		dao.update(classes);
 		resetClasses();
+
+	}
+	
+	protected void btnDetailsActionPerformed(ActionEvent e) {
+		
+		if (textField_3.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(null, "Please select a class to view details!");
+			return;
+		}
+		var clId = Integer.parseInt(textField_3.getText());
+		
+		var f =  ReportFrame.getInstance(clId);
+		
+		if(!f.isVisible()) {
+			f.setVisible(true);
+			desktopPane.add(f);
+			
+			 
+          
+		}
+		 f.toFront();
+		 f.moveToFront();
+		
+		
 
 	}
 	// event when click on button delete class
@@ -443,7 +551,8 @@ public List<Object[]> loadCourse(int currentPage, int numberOfRows) {
 
 	    // Reset ComboBoxes
 	    cbbCourse.setSelectedIndex(0);
-	    cbbTeacher.setSelectedIndex(0); 
+	    cbbTeacher.setSelectedIndex(0);
+	    cbbStatus.setSelectedIndex(0);
 
 	    // Reset tables
 	    tablePageCourse.resetTable();
@@ -460,6 +569,7 @@ public List<Object[]> loadCourse(int currentPage, int numberOfRows) {
 	    // Reset ComboBoxes
 	    cbbCourse.setSelectedIndex(0);
 	    cbbTeacher.setSelectedIndex(0); 
+	    cbbStatus.setSelectedIndex(0);
 
 	    // Reset tables	  
 	    tablePageClasses.resetTable();

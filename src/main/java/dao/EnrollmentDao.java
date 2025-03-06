@@ -11,8 +11,8 @@ public class EnrollmentDao {
 		List<Enrollment> list = new ArrayList<>();
 
 		try (var conn = ConnectDB.getCon();
-		    var cs = conn.prepareCall("{call selectEnrollment}");
-		    var rs = cs.executeQuery();) {
+				var cs = conn.prepareCall("{call selectEnrollment}");
+				var rs = cs.executeQuery();) {
 			while (rs.next()) {
 				var enrollment = new Enrollment();
 				enrollment.setEnrollId(rs.getInt("enrollId"));
@@ -25,7 +25,7 @@ public class EnrollmentDao {
 
 		return list;
 	}
-	
+
 	public List<Enrollment> selectByStudentId(int studentId) {
 		List<Enrollment> list = new ArrayList<>();
 
@@ -38,6 +38,7 @@ public class EnrollmentDao {
 					enrollment.setStuId(rs.getInt("stuId"));
 					enrollment.setClassId(rs.getInt("classId"));
 					enrollment.setEnrollDate(rs.getDate("enrollDate"));
+					enrollment.setPassStatus(rs.getBoolean("passStatus"));
 					list.add(enrollment);
 				}
 			}
@@ -47,12 +48,11 @@ public class EnrollmentDao {
 
 		return list;
 	}
-	
+
 	public void delete(int enrollId) {
 		try (var conn = ConnectDB.getCon();
-			var cs = conn.prepareCall("{call deleteEnrollment(?)}");
-			var cs2 = conn.prepareCall("{call deleteGradeByEnrollId(?)}");
-		) {
+				var cs = conn.prepareCall("{call deleteEnrollment(?)}");
+				var cs2 = conn.prepareCall("{call deleteGradeByEnrollId(?)}");) {
 			cs.setInt(1, enrollId);
 			cs2.setInt(1, enrollId);
 			cs2.executeUpdate();
@@ -61,19 +61,70 @@ public class EnrollmentDao {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void add(int stuId, int classId) {
-		try (var conn = ConnectDB.getCon();
-			var cs = conn.prepareCall("{call createEnrollmentAGrade(?, ?)}");
-			) {
+		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call createEnrollmentAGrade(?, ?)}");) {
 			cs.setInt(1, stuId);
 			cs.setInt(2, classId);
 			cs.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	
+
 	}
 
+	public void updateStatus(boolean status, int enrollId) {
+		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call updateEnrollmentStatus(?, ?)}");) {
+
+			cs.setBoolean(1, status);
+			cs.setInt(2, enrollId);
+			cs.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public Integer countEnroll() {
+		var count = 0;
+		try (var conn = ConnectDB.getCon();
+				var cs = conn.prepareCall("{call totalEnroll()}");
+				var rs = cs.executeQuery();) {
+			if (rs.next()) {
+				count = rs.getInt("total");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return count;
+	}
+	
+	public Integer countFail() {
+		var count = 0;
+		try (var conn = ConnectDB.getCon();
+				var cs = conn.prepareCall("{call totalFail()}");
+				var rs = cs.executeQuery();) {
+			if (rs.next()) {
+				count = rs.getInt("total");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return count;
+	}
+	
+	public Integer countPass() {
+		var count = 0;
+		try (var conn = ConnectDB.getCon();
+				var cs = conn.prepareCall("{call totalPass()}");
+				var rs = cs.executeQuery();) {
+			if (rs.next()) {
+				count = rs.getInt("total");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return count;
+	}
 
 }

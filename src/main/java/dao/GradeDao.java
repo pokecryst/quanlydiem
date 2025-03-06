@@ -121,5 +121,26 @@ public class GradeDao {
 
 		return grade;
 	}
+	
+	public int selectEnrollIDByGradeID(int id) {
+		var enrollId = 0;
+		Grade grade = new Grade();
+		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call selectEnrollIDByGradeID(?)}");
+				
+			)
+		{	
+			cs.setInt(1, id);
+			var rs = cs.executeQuery();
+			while(rs.next()){
+				enrollId = rs.getInt("enrollId");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		}
+
+		return enrollId;
+	}
+	
 
 }

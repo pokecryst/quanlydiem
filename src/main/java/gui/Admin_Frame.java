@@ -1,10 +1,13 @@
 package gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+
 
 import java.awt.Dimension;
 
 import javax.swing.ImageIcon;
+import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -13,7 +16,6 @@ import javax.swing.border.EmptyBorder;
 import sub.AcountSub;
 import sub.CourseSub;
 import sub.EmployeeSub;
-import sub.SSub;
 import sub.StudentSub;
 import sub.TeacherSub;
 
@@ -27,7 +29,7 @@ public class Admin_frame extends JFrame {
 	private JPanel            panel_2;
 	private JPanel            panel_3;
 	private JPanel            panel_4;
-	private JPanel panel_5;
+	private JDesktopPane desktopPane;
 
 
 	public Admin_frame() {
@@ -38,13 +40,17 @@ public class Admin_frame extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		setContentPane(contentPane);
-		contentPane.setLayout(null);
+		contentPane.setLayout(new BorderLayout(0, 0));
+		
+		desktopPane = new JDesktopPane();
+		contentPane.add(desktopPane, BorderLayout.CENTER);
+	    desktopPane.setLayout(null);
 
 		tabbedPane = new JTabbedPane(JTabbedPane.LEFT);
 		tabbedPane.setBackground(new Color(255, 255, 255));
 		tabbedPane.setPreferredSize(new Dimension(50, 50));
 		tabbedPane.setBounds(0, 0, 1164, 729);
-		contentPane.add(tabbedPane);
+		desktopPane.add(tabbedPane);
 
 		panel_1 = new EmployeeSub();
 		tabbedPane.addTab("Employee Manager",

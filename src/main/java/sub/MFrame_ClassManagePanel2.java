@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -40,6 +41,7 @@ import dao.ClassesDao;
 import dao.CourseDao;
 import dao.EmployeeDao;
 import dao.EnrollStuDao;
+import dao.EnrollmentDao;
 import dao.GradeDao;
 import dao.GradeStuDao;
 import entity.Account;
@@ -106,6 +108,7 @@ public class MFrame_ClassManagePanel2 extends JPanel {
     private JLabel lblAssignedTeacher;
     private JLabel lblATeacherName;
     
+    private Map<Integer, Class<?>> columnMapping = new HashMap<>();
     private DefaultMutableTreeNode root = new DefaultMutableTreeNode("Classes");
     private JTextField txtStudent;
     private JLabel lblMidScore;
@@ -160,27 +163,27 @@ public class MFrame_ClassManagePanel2 extends JPanel {
         		 this::fetchDataStuList,
         		 this::countTotalRows
         		);
-
+        columnMapping.put(0, Integer.class);
+        columnMapping.put(1, Integer.class);
+        columnMapping.put(2, String.class);
+        columnMapping.put(3, Boolean.class);
+        columnMapping.put(4, Date.class);
+        columnMapping.put(5, String.class);
+        columnMapping.put(6, String.class);
+        columnMapping.put(7, String.class);
+        columnMapping.put(8, ImageIcon.class);
+        columnMapping.put(9, String.class);
+        columnMapping.put(10, Integer.class);
         tablePageStuList.setColumnNamesAndTypes(
             new String[]{
                 "No", "Student ID", "Name", "Gender", "DoB",
-                "Address", "Email", "Phone", "Picture", "Enroll Id"
+                "Address", "Email", "Phone", "Picture", "Status","Enroll Id"
 
             },
-            Map.of(
-                0, Integer.class,
-                1, Integer.class,
-                2, String.class,
-                3, Boolean.class,
-                4, Date.class,
-                5, String.class,
-                6, String.class,
-                7, String.class,
-                8, ImageIcon.class,
-                9, Integer.class
-            )
+            columnMapping
         );
         tablePageStuList.setTableStatus(false);
+        tablePageStuList.setColumnVisibility(10, false);
 
         tabbedPane.addTab("Student List", null, tablePageStuList, null);
 
@@ -488,9 +491,7 @@ public class MFrame_ClassManagePanel2 extends JPanel {
 
 			switch (currentAcc.getRoleId()) {
 			case 1:
-				dao.selectAll().forEach(cla -> {
-					root.add(new DefaultMutableTreeNode(cla.getClassName()));
-				});
+				categorizeTree();
 				break;
 			case 2:
 				dao.selectByTeachID(currentAcc.getEmpId()).forEach(cla -> {
@@ -509,6 +510,38 @@ public class MFrame_ClassManagePanel2 extends JPanel {
 
          tree.setModel(new DefaultTreeModel(root));
          scrollPane.setViewportView(tree);
+    }
+    
+    private void categorizeTree() {
+    	var dao = new ClassesDao();
+    	DefaultMutableTreeNode enrollingNode = new DefaultMutableTreeNode("Enrolling");
+	    DefaultMutableTreeNode inProgressNode = new DefaultMutableTreeNode("In Progress");
+	    DefaultMutableTreeNode finishedNode = new DefaultMutableTreeNode("Finished");
+	    
+	    dao.selectAll().forEach(cla -> {
+	        DefaultMutableTreeNode classNode = new DefaultMutableTreeNode(cla.getClassName());
+	        
+	        switch (cla.getClStatId()) {
+	            case 1: // Enrolling
+	                enrollingNode.add(classNode);	         
+	                break;
+	            case 2: // In Progress
+	                inProgressNode.add(classNode);
+	                break;
+	            case 3: // Finished
+	                finishedNode.add(classNode);
+	                break;
+	            default:
+	                System.err.println("Unknown class status ID: " + cla.getClStatId());
+	                break;
+	        }
+	    });
+
+	    // Only add parent nodes if they have children
+	    if (enrollingNode.getChildCount() > 0) root.add(enrollingNode);
+	    if (inProgressNode.getChildCount() > 0) root.add(inProgressNode);
+	    if (finishedNode.getChildCount() > 0) root.add(finishedNode);
+    
     }
     
 
@@ -566,6 +599,7 @@ public class MFrame_ClassManagePanel2 extends JPanel {
                           new ImageIcon(en.getStudent().getStuImage())
                               .getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH)
                       ),
+                  (en.isPassStatus())? "Pass" : "Fail",
                   en.getEnrollId()
               }
           );
@@ -698,6 +732,8 @@ public class MFrame_ClassManagePanel2 extends JPanel {
     protected void btnUpdateScoreActionPerformed(ActionEvent e) {
     	var grade = new Grade();
 		 var dao = new GradeDao();
+		 var enrollId = dao.selectEnrollIDByGradeID(Integer.parseInt(txtInputGradeID.getText()));
+		 var enrollDao = new EnrollmentDao();
 		 var midCheck = helper.Valid.checkRegex2(Regex.DOUBLE, txtMidScore.getText()); 
 		 var finalCheck = helper.Valid.checkRegex2(Regex.DOUBLE, txtFinalScore.getText());
 		 
@@ -707,8 +743,15 @@ public class MFrame_ClassManagePanel2 extends JPanel {
 			 grade.setAvgScore(dao.calcAveStrInput(txtMidScore.getText(), txtFinalScore.getText()));
 			 grade.setGradeId(Integer.parseInt(txtInputGradeID.getText()));
 			 dao.update(grade);
+			 if(dao.calcAveStrInput(txtMidScore.getText(), txtFinalScore.getText()) >= 5.0) {
+				 enrollDao.updateStatus(true, enrollId);
+			 }else {
+				 enrollDao.updateStatus(false, enrollId);
+			 }
+			 
 			 JOptionPane.showMessageDialog(null, "Grade Updated");
 			 tablePageScoList.resetTable();
+			 tablePageStuList.resetTable();
 			
 			
 		 }else {

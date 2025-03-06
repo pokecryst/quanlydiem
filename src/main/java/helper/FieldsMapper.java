@@ -23,6 +23,10 @@ public class FieldsMapper {
         if (value != null) field.setText(value.toString());
     }
 	
+	public static void setLabel(JLabel field, Integer value) {
+        if (value != null) field.setText(value.toString());
+    }
+	
 	public static void setGenderRadio(JRadioButton male, JRadioButton female, Object value) {
 		if(value!= null) {
 			var bool = (boolean) value;

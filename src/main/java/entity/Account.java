@@ -2,6 +2,8 @@ package entity;
 
 import java.time.LocalDate;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 public class Account {
 
 	private int    accId;
@@ -59,8 +61,11 @@ public class Account {
 	}
 
 	public void setAccPass(String accPass) {
-		this.accPass = accPass;
+		this.accPass = encodePass(accPass);
+//		this.accPass = accPass;
 	}
+	
+	
 
 	public LocalDate getAccCreateDate() {
 		return accCreateDate;
@@ -101,7 +106,21 @@ public class Account {
 		return "Account [accId=" + accId + ", accEmail=" + accEmail + ", accPass=" + accPass + ", accCreateDate="
 				+ accCreateDate + ", accStatus=" + accStatus + ", empId=" + empId + ", roleId=" + roleId + "]";
 	}
-
+	
+	//Method
+	public String encodePass(String accPass) {
+		return new BCryptPasswordEncoder().encode(accPass);
+	}
+	
+	public boolean validatePass(String pass) {
+		
+		 return new BCryptPasswordEncoder().matches(pass, accPass);
+	}
+	
+	public boolean validateAccount(String email, String pass) {
+	
+		 return new BCryptPasswordEncoder().matches(pass, accPass) && this.accEmail.equals(email);
+	}
 
 
 

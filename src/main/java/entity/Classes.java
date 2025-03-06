@@ -9,12 +9,11 @@ public class Classes {
 	private Date endDate;
 	private int courseId;
 	private int empId;
+	private int clStatId;
 
 	public Classes() {};
 
-	
-
-	public Classes(int classId, String className, Date startDate, Date endDate, int courseId, int empId) {
+	public Classes(int classId, String className, Date startDate, Date endDate, int courseId, int empId, int clStatId) {
 		super();
 		this.classId = classId;
 		this.className = className;
@@ -22,6 +21,7 @@ public class Classes {
 		this.endDate = endDate;
 		this.courseId = courseId;
 		this.empId = empId;
+		this.clStatId = clStatId;
 	}
 
 
@@ -67,7 +67,6 @@ public class Classes {
 		this.courseId = courseId;
 	}
 	
-	
 
 	public int getTeachId() {
 		return empId;
@@ -78,14 +77,25 @@ public class Classes {
 	public void setTeachId(int empId) {
 		this.empId = empId;
 	}
+	
+	
 
 
+	public int getClStatId() {
+		return clStatId;
+	}
+
+	public void setClStatId(int clStatId) {
+		this.clStatId = clStatId;
+	}
 
 	@Override
 	public String toString() {
 		return "Classes [classId=" + classId + ", className=" + className + ", startDate=" + startDate + ", endDate="
-				+ endDate + ", courseId=" + courseId + ", teachId=" + empId + "]";
+				+ endDate + ", courseId=" + courseId + ", empId=" + empId + ", clStatId=" + clStatId + "]";
 	}
+
+	
 
 
 

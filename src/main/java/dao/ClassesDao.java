@@ -23,6 +23,7 @@ public class ClassesDao {
 				classes.setClassName(rs.getString("className"));
 				classes.setStartDate(rs.getDate("startDate"));
 				classes.setEndDate(rs.getDate("endDate"));
+				classes.setClStatId(rs.getInt("clStatId"));
 
 				list.add(classes);
 			}
@@ -53,6 +54,7 @@ public class ClassesDao {
 						classes.setEndDate(rs.getDate("endDate"));
 						classes.setCourseId(rs.getInt("courseId"));
 						classes.setTeachId(rs.getInt("empId"));
+						classes.setClStatId(rs.getInt("clStatId"));
 					}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -78,6 +80,7 @@ public class ClassesDao {
 						classes.setEndDate(rs.getDate("endDate"));
 						classes.setCourseId(rs.getInt("courseId"));
 						classes.setTeachId(rs.getInt("empId"));
+						classes.setClStatId(rs.getInt("clStatId"));
 					}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -103,6 +106,7 @@ public class ClassesDao {
 	            classes.setEndDate(rs.getDate("endDate"));
 	            classes.setCourseId(rs.getInt("courseId"));
 	            classes.setTeachId(rs.getInt("empId"));
+	            classes.setClStatId(rs.getInt("clStatId"));
 	            
 	            list.add(classes);
 	        }
@@ -115,13 +119,14 @@ public class ClassesDao {
 
 	
 	public void update(Classes classes) {
-		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call updateClass(?,?,?,?,?,?)}");) {
+		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call updateClass(?,?,?,?,?,?,?)}");) {
 			cs.setString(1, classes.getClassName());
 			cs.setDate(2, classes.getStartDate());
 			cs.setDate(3, classes.getEndDate());
 			cs.setInt(4, classes.getCourseId());
 			cs.setInt(5, classes.getTeachId());
-			cs.setInt(6, classes.getClassId());
+			cs.setInt(6, classes.getClStatId());
+			cs.setInt(7, classes.getClassId());
 			cs.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -157,23 +162,6 @@ public class ClassesDao {
 	    }
 	}
 
-	
-
-	public void addClass(Classes classes) {
-		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call createClass(?,?,?,?,?)}");) {
-			cs.setString(1, classes.getClassName());
-			cs.setDate(2, classes.getStartDate());
-			cs.setDate(3, classes.getEndDate());
-			cs.setInt(4, classes.getCourseId());
-			JOptionPane.showMessageDialog(null, classes.getCourseId());
-			cs.setInt(5, classes.getTeachId());
-			JOptionPane.showMessageDialog(null, classes.getTeachId());
-			cs.executeUpdate();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public List<Classes> pagingClass(int currentPage, int numberOfRows) {
 	    List<Classes> list = new ArrayList<>();
 	    try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call pagingClass(?, ?)}")) {
@@ -188,6 +176,7 @@ public class ClassesDao {
 	            classes.setEndDate(rs.getDate("endDate"));
 	            classes.setCourseId(rs.getInt("courseId"));
 	            classes.setTeachId(rs.getInt("empId"));
+	            classes.setClStatId(rs.getInt("clStatId"));
 
 	            list.add(classes);
 	        }
@@ -209,6 +198,24 @@ public class ClassesDao {
 		}
 		return count;
 	}
+	
+	//khanh
+	public void addClass(Classes classes) {
+		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call createClass(?,?,?,?,?)}");) {
+			cs.setString(1, classes.getClassName());
+			cs.setDate(2, classes.getStartDate());
+			cs.setDate(3, classes.getEndDate());
+			cs.setInt(4, classes.getCourseId());
+			JOptionPane.showMessageDialog(null, classes.getCourseId());
+			cs.setInt(5, classes.getTeachId());
+			JOptionPane.showMessageDialog(null, classes.getTeachId());
+			cs.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 
 
 }

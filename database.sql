@@ -5,7 +5,7 @@ DROP DATABASE IF EXISTS QUANLYDIEM
 CREATE DATABASE QUANLYDIEM
 GO
 
-USE QUANLYDIEM3
+USE QUANLYDIEM
 GO
 
 DROP TABLE IF EXISTS student
@@ -55,7 +55,8 @@ CREATE TABLE class
 	startDate DATE,
 	endDate DATE,
 	courseId INT,
-	empId INT
+	empId INT,
+	clStatId INT
 )
 GO
 
@@ -64,6 +65,7 @@ CREATE TABLE enrollment
 (
 	enrollId INT PRIMARY KEY IDENTITY,
 	enrollDate DATE DEFAULT GETDATE(),
+	passStatus BIT DEFAULT 0,
 	stuId INT,
 	classId INT
 )
@@ -103,6 +105,15 @@ CREATE TABLE roles
 )
 GO
 
+DROP TABLE IF EXISTS class_status
+CREATE TABLE class_status
+(
+	clStatID INT IDENTITY PRIMARY KEY,
+	clStatName VARCHAR(50)
+
+)
+GO
+
 
 ALTER TABLE enrollment
 ADD CONSTRAINT FK_enrollment_student
@@ -136,12 +147,20 @@ ALTER TABLE employee
 ADD CONSTRAINT FK_employee_roles
 FOREIGN KEY (roleId) REFERENCES roles(roleId)
 
+ALTER TABLE class
+ADD CONSTRAINT FK_class_stats
+FOREIGN KEY (clStatId) REFERENCES class_status(clStatId)
+
 --DEFAULT
 ALTER TABLE student
 ADD CONSTRAINT DF_student_image DEFAULT 'images/a.jpg' FOR stuImage;
 
+ALTER TABLE enrollment
+ADD CONSTRAINT DF_enroll_status DEFAULT 0 FOR passStatus;
+
 ALTER TABLE employee
 ADD CONSTRAINT DF_employee_image DEFAULT 'images/a.jpg' FOR empImage;
+
 
 INSERT INTO student(stuName, stuAddress, stuDob, stuEmail, stuGender, stuPhone, stuImage)
 VALUES( 'StudentName', 'address', '2013-10-09', 'stu@gmail.com', 1, '0039939830', 'images/a.jpg')
@@ -149,10 +168,6 @@ GO 10
 
 createStu 'StudentName', 1, '2013-10-09', 'stu@gmail.com', '0039939830', 'address', 'images/a.jpg'
 GO 
-
-INSERT INTO employee(empName, empAddress, empDob, empGender, empPhone, empImage)
-VALUES('Name', 'address', '1999-10-24', 0, '0039939820', 'images/a.jpg')
-GO 10
 
 INSERT INTO roles(roleName)
 VALUES('admin')
@@ -164,6 +179,30 @@ INSERT INTO roles(roleName)
 VALUES('staff')
 GO
 
+INSERT INTO class_status(clStatName)
+VALUES('enrolling')
+GO
+INSERT INTO class_status(clStatName)
+VALUES('in progress')
+GO
+INSERT INTO class_status(clStatName)
+VALUES('finished')
+GO
+
+INSERT INTO employee(empName, empAddress, empDob, empGender, empPhone, empImage, roleId)
+VALUES('AdminName', 'address', '1999-10-24', 0, '0039939820', 'images/a.jpg', 1)
+GO
+
+INSERT INTO employee(empName, empAddress, empDob, empGender, empPhone, empImage, roleId)
+VALUES('StaffName', 'address', '1999-10-24', 0, '0039939820', 'images/a.jpg', 3)
+GO 2
+
+INSERT INTO employee(empName, empAddress, empDob, empGender, empPhone, empImage, roleId)
+VALUES('TeaName', 'address', '1999-10-24', 0, '0039939820', 'images/a.jpg', 2)
+GO 5
+
+
+
 
 INSERT INTO course(courseName, courseDesc, courseDuration)
 VALUES('Tiếng Anh Giao Tiếp', 'course desc', 10)
@@ -172,11 +211,11 @@ INSERT INTO course(courseName, courseDesc, courseDuration)
 VALUES('Tiếng Anh Thương Mại', 'course desc', 10)
 GO
 
-INSERT INTO class(className, courseId, startDate, endDate, empId)
-VALUES('GT01', 1, '2025-03-10', '2025-03-31', 1)
+INSERT INTO class(className, courseId, startDate, endDate, empId, clStatId)
+VALUES('GT01', 1, '2025-03-10', '2025-03-31', 4, 1)
 GO
-INSERT INTO class(className, courseId, startDate, endDate, empId)
-VALUES('TM01', 2, '2025-03-10', '2025-03-31', 2)
+INSERT INTO class(className, courseId, startDate, endDate, empId, clStatId)
+VALUES('TM01', 2, '2025-03-10', '2025-03-31', 5, 1)
 GO
 
 createEnrollmentAGrade 1, 1
@@ -233,16 +272,32 @@ GO
 
 
 INSERT INTO accounts(accEmail, accPass, roleId, accStatus, empId)
-VALUES('admin@edu.com', '123', 1, 0, 1)
+VALUES('admin@edu.com', '$2a$10$5xvLtIFH6zHNZ2VBurgmk.rqzW6/HFlE734ZUB2GW55y0Li50eW8G', 1, 0, 1)
 GO
 INSERT INTO accounts(accEmail, accPass, roleId, accStatus, empId)
-VALUES('sta@edu.com', '123', 3, 0, 2)
+VALUES('sta@edu.com', '$2a$10$O/FJd6RoV31ufLjnBI9FR.3th0XPiVfvi7aS.OhSH6siI/VAuTUxO', 3, 0, 2)
 GO
 INSERT INTO accounts(accEmail, accPass, roleId, accStatus, empId)
-VALUES('tea@edu.com', '123', 2, 1, 3)
+VALUES('tea@edu.com', '$2a$10$gjTCbcZ6HAm60mGy2bWidu3lU1rZD71L6Yie9UO6cRjH6oqqqXZ2u', 2, 1, 4)
 GO
 
 --stored procedure
+--class status
+CREATE OR ALTER PROCEDURE selectClStatus
+AS
+BEGIN
+	SELECT * FROM class_status
+END
+GO
+
+CREATE OR ALTER PROCEDURE selectClassStatusByID
+@clStatID INT
+AS
+BEGIN
+	SELECT * FROM class_status
+	WHERE clStatID = @clStatID
+END
+GO
 --roles
 	--R
 CREATE OR ALTER PROCEDURE selectRoles
@@ -281,6 +336,36 @@ BEGIN
     END
 END
 GO
+
+CREATE OR ALTER PROCEDURE ValidateAccountEmail
+    @accEmail NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (SELECT 1 FROM Accounts WHERE accEmail = @accEmail)
+    BEGIN
+        SELECT 1 AS IsValid, roleId, accPass, accStatus FROM Accounts WHERE accEmail = @accEmail;
+    END
+    ELSE
+    BEGIN
+        SELECT 0 AS IsValid, NULL AS roleId;
+    END
+END
+GO
+
+CREATE OR ALTER PROCEDURE returnPassOnly
+@accId INT
+AS
+BEGIN
+	SELECT accPass from accounts
+	WHERE accId = @accId
+END
+GO
+
+returnPassOnly 1
+
+
 --- store select account ---
 CREATE OR ALTER PROC selectAcc
 AS
@@ -332,7 +417,6 @@ BEGIN
 END
 GO
 
-insertAcc 'tea2@edu.com', 123, 2, True, 4
 
 -----------employee store (bk)------------
 CREATE OR ALTER PROCEDURE getEmpIdsWithoutAccount
@@ -342,7 +426,7 @@ BEGIN
 END
 GO
 
-getEmpIdsWithoutAccount 
+
 
 --student
 
@@ -374,7 +458,7 @@ BEGIN
 END
 GO
 
-selectStuNameByID 1
+
 
 
 	--U
@@ -566,8 +650,8 @@ CREATE OR ALTER PROC createClass
     @empId INT
 AS
 BEGIN
-    INSERT INTO class (className, startDate, endDate, courseId, empId)
-    VALUES (@className, @startDate, @endDate, @courseId, @empId)
+    INSERT INTO class (className, startDate, endDate, courseId, empId, clStatId)
+    VALUES (@className, @startDate, @endDate, @courseId, @empId, 1)
 END
 GO
 
@@ -602,10 +686,9 @@ CREATE OR ALTER PROC selectClassesByTeachID
 AS
 BEGIN
 	SELECT * FROM class
-	WHERE empId =@empId
+	WHERE empId =@empId AND clStatId = 2
 END
 GO
-
 
 
 	--U
@@ -615,6 +698,7 @@ CREATE OR ALTER PROC updateClass
     @endDate DATE, 
     @courseId INT, 
     @empId INT,
+	@clStatId INT,
 	@classId INT
 AS
 BEGIN
@@ -623,7 +707,8 @@ BEGIN
         startDate = @startDate,
         endDate = @endDate,
         courseId = @courseId,
-        empId = @empId
+        empId = @empId,
+		clStatId = @clStatId
     WHERE classId = @classId
 END
 GO
@@ -692,6 +777,17 @@ BEGIN
 END
 GO
 
+CREATE OR ALTER PROC updateEnrollmentStatus
+    @passStatus BIT,
+	@enrollId INT
+AS
+BEGIN
+    UPDATE enrollment
+    SET passStatus = @passStatus
+    WHERE enrollId = @enrollId
+END
+GO
+
 	--D
 CREATE OR ALTER PROC deleteEnrollment
     @enrollId INT
@@ -721,6 +817,16 @@ BEGIN
 	WHERE gradeId = @gradeId
 END
 GO
+
+CREATE OR ALTER PROC selectEnrollIDByGradeID
+@gradeId INT
+AS
+BEGIN
+    SELECT enrollId FROM grade
+	WHERE gradeId = @gradeId
+END
+GO
+
 
 	--U
 CREATE OR ALTER PROC updateGrade
@@ -800,7 +906,7 @@ CREATE OR ALTER PROC pagingStudentList
 @currentpage INT, @numberofrows INT, @classId INT
 AS
 BEGIN
-	SELECT enrollment.enrollId, student.*
+	SELECT enrollment.enrollId, enrollment.passStatus, student.*
 	FROM enrollment
 	JOIN student ON student.stuId = enrollment.stuId
 	JOIN class ON enrollment.classId = class.classId
@@ -810,7 +916,18 @@ BEGIN
 	FETCH NEXT @numberofrows ROWS ONLY;
 END
 GO
-pagingStudentList 1, 10, 1
+
+CREATE OR ALTER PROC failedStuOfClass
+ @classId INT
+AS
+BEGIN
+	SELECT count(enrollment.enrollId) total
+	FROM enrollment
+	WHERE classId = @classId AND passStatus = 0
+END
+GO
+
+
 
 CREATE OR ALTER PROC NotStudentList
     @classId INT
@@ -825,8 +942,6 @@ BEGIN
     ORDER BY s.stuName;
 END
 GO
-NotStudentList 1
-
 
 CREATE OR ALTER PROC pagingStudentNotInClass
 @currentpage INT, @numberofrows INT, @classId INT
@@ -844,7 +959,7 @@ BEGIN
 END
 GO
 
-pagingStudentNotInClass 1, 10, 1
+
 
 CREATE OR ALTER PROC countStudentNotInClass
 @classId INT
@@ -871,7 +986,6 @@ BEGIN
 END
 GO
 
-pagingEnrollListOfStu 1, 10 , 2
 
 CREATE OR ALTER PROC countEnrollListOfStu
 @stuId INT
@@ -928,7 +1042,6 @@ BEGIN
 END
 GO
 
-pagingTeacher 1, 10
 
 CREATE OR ALTER PROC countTeacher
 AS
@@ -1050,5 +1163,43 @@ BEGIN
     -- Execute the dynamic SQL
     EXEC sp_executesql @sql;
 END
+GO
+
+--total student
+CREATE OR ALTER PROC totalStudent
+AS
+BEGIN
+	SELECT count(stuId) total FROM student
+END
+GO
+--total enrollments
+CREATE OR ALTER PROC totalEnroll
+AS
+BEGIN
+	SELECT count(enrollId) total FROM enrollment
+END
+GO
+
+--total fail
+CREATE OR ALTER PROC totalFail
+AS
+BEGIN
+	SELECT count(enrollId) total FROM enrollment
+	JOIN class ON enrollment.classID = class.classId
+	WHERE class.clStatId = 3 AND enrollment.passStatus = 0
+END
+GO
+
+--total pass
+CREATE OR ALTER PROC totalPass
+AS
+BEGIN
+	SELECT count(enrollId) total FROM enrollment
+	JOIN class ON enrollment.classID = class.classId
+	WHERE class.clStatId = 3 AND enrollment.passStatus = 1
+END
+GO
+
+use QUANLYDIEM
 GO
 

@@ -1,6 +1,8 @@
 package entity;
 
-public class Course {
+import helper.getID;
+
+public class Course implements getID{
 	private int courseId;
 	private String courseName;
 	private String courseDesc;
@@ -15,6 +17,11 @@ public class Course {
 		this.courseDesc     = courseDesc;
 		this.courseDuration = courseDuration;
 	}
+	
+	@Override
+    public int getID() {
+        return courseId;
+    }
 
 	public int getCourseId() {
 		return courseId;

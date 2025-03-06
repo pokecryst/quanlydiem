@@ -23,6 +23,37 @@ public class EnrollStuDao {
 				var enrollstu  = new EnrollStu();
 				var student = new Student();
 				enrollstu.setEnrollId(rs.getInt("enrollId"));
+				enrollstu.setPassStatus(rs.getBoolean("passStatus"));
+				student.setStuId(rs.getInt("stuId"));
+				student.setStuName(rs.getString("stuName"));
+				student.setStuGender(rs.getBoolean("stuGender"));
+				student.setStuDob(rs.getDate("stuDob").toLocalDate());
+				student.setStuAddress(rs.getString("stuAddress"));
+				student.setStuEmail(rs.getString("stuEmail"));
+				student.setStuPhone(rs.getString("stuPhone"));
+				student.setStuImage(rs.getString("stuImage"));
+				enrollstu.setStudent(student);
+				list.add(enrollstu);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
+	public List<EnrollStu> pagingStudentList(int currentPage, int numberOfRows, int classId) {
+		List<EnrollStu> list = new ArrayList<>();
+		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call pagingStudentList(?,?,?)}")) {
+			cs.setInt(1, currentPage);
+			cs.setInt(2, numberOfRows);
+			cs.setInt(3, classId);
+			var rs = cs.executeQuery();
+			while (rs.next()) {
+				var enrollstu  = new EnrollStu();
+				var student = new Student();
+				enrollstu.setEnrollId(rs.getInt("enrollId"));
+				enrollstu.setPassStatus(rs.getBoolean("passStatus"));
 				student.setStuId(rs.getInt("stuId"));
 				student.setStuName(rs.getString("stuName"));
 				student.setStuGender(rs.getBoolean("stuGender"));
@@ -90,6 +121,44 @@ public class EnrollStuDao {
 		return count;
 	}
 	
+	public Integer countStudentList(int classId) {
+		var count = 0;
+
+		try (var conn = ConnectDB.getCon();
+				var cs = conn.prepareCall("{call countStudentList(?)}");
+				) {
+			cs.setInt(1, classId);
+			var rs = cs.executeQuery();
+			if (rs.next()) {
+				count = rs.getInt("total");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return count;
+	}
+	
+	public Integer countStudentFailOfClass(int classId) {
+		var count = 0;
+
+		try (var conn = ConnectDB.getCon();
+				var cs = conn.prepareCall("{call failedStuOfClass(?)}");
+				) {
+			cs.setInt(1, classId);
+			var rs = cs.executeQuery();
+			if (rs.next()) {
+				count = rs.getInt("total");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return count;
+	}
+	
 	public Integer countStudentNotInClass(Classes classes) {
 		var count = 0;
 
@@ -120,6 +189,7 @@ public class EnrollStuDao {
 				var enrollstu  = new EnrollStu();
 				enrollstu.setEnrollId(rs.getInt("enrollId"));
 				enrollstu.setEnrollDate(rs.getDate("enrollDate").toLocalDate());
+				enrollstu.setPassStatus(rs.getBoolean("passStatus"));
 				enrollstu.setClassId(rs.getInt("classId"));
 				enrollstu.setStuId(rs.getInt("stuId"));
 				list.add(enrollstu);
