@@ -2,7 +2,9 @@ package dao;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JOptionPane;
 
@@ -11,6 +13,27 @@ import entity.Student;
 import service.ConnectDB;
 
 public class StudentDao {
+	 	private static final String STUDENT_PREFIX = "1"; // "1" indicates student
+	    private static final Map<String, Integer> enrollmentCount = new HashMap<>(); // Stores student count per month
+
+	    public static Integer generateStudentId(int year, int month) {
+	        String yearStr = String.format("%02d", year % 100); // Get last two digits of year
+	        String monthStr = String.format("%02d", month); // Ensure two-digit month format
+
+	        // Create a key to track students per month
+	        String key = yearStr + monthStr;
+
+	        // Increment student count for this year-month
+	        enrollmentCount.put(key, enrollmentCount.getOrDefault(key, 0) + 1);
+	        int studentNumber = enrollmentCount.get(key);
+
+	        // Format student number to be three digits (001, 002, etc.)
+	        String studentNumStr = String.format("%03d", studentNumber);
+	        Integer finalId = Integer.parseInt(STUDENT_PREFIX + yearStr + monthStr + studentNumStr);
+	        // Construct final student ID
+	        return finalId;
+	    }
+
 	
 	public List<Student> selectAll(){
 		List<Student> list = new ArrayList<Student>();
@@ -57,15 +80,16 @@ public class StudentDao {
 	    }
 	}
 	
-	public void insertStudent(Student stu) {
-	    try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call createStu(?, ?, ?, ?, ?, ?, ?)}")) {
-	        cs.setString(1, stu.getStuName());
-	        cs.setBoolean(2, stu.isStuGender());
-	        cs.setDate(3, java.sql.Date.valueOf(stu.getStuDob()));
-	        cs.setString(4, stu.getStuEmail());
-	        cs.setString(5, stu.getStuPhone());
-	        cs.setString(6, stu.getStuAddress());
-	        cs.setString(7, stu.getStuImage());
+	public void insertStudent(Student stu, int year, int month) {
+	    try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call createStus(?, ?, ?, ?, ?, ?, ?, ?)}")) {
+	        cs.setInt(1, generateStudentId(year, month));
+	    	cs.setString(2, stu.getStuName());
+	        cs.setBoolean(3, stu.isStuGender());
+	        cs.setDate(4, java.sql.Date.valueOf(stu.getStuDob()));
+	        cs.setString(5, stu.getStuEmail());
+	        cs.setString(6, stu.getStuPhone());
+	        cs.setString(7, stu.getStuAddress());
+	        cs.setString(8, (stu.getStuImage() != null) ? stu.getStuImage() : "images/a.jpg");
 	        cs.execute();
 	        JOptionPane.showMessageDialog(null, "Student Added Successfully");
 	    } catch (SQLException e) {

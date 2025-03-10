@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -107,6 +108,7 @@ public class StudentSub extends JPanel {
 		add(lblStuName);
 
 		txtStuID = new JTextField();
+		txtStuID.setEditable(false);
 		txtStuID.setColumns(10);
 		txtStuID.setBounds(295, 342, 120, 30);
 		add(txtStuID);
@@ -472,7 +474,7 @@ public class StudentSub extends JPanel {
 	        stu.setStuImage(fileold);
 	    }
 
-	    dao.insertStudent(stu); // Insert student into the database
+	    dao.insertStudent(stu, LocalDate.now().getYear(), LocalDate.now().getMonthValue());
 	    resetEverything(); // Reset fields after adding
 	}
 	

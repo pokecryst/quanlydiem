@@ -90,8 +90,8 @@ public class MainFrame extends JFrame {
         mntmTeacherAccInfo.addActionListener(this::showInfo);
         mnNewMenu.add(mntmTeacherAccInfo);
         
-        mntmPrintReport = new JMenuItem("Print Report");
-        mntmPrintReport.setMnemonic('P');
+        mntmPrintReport = new JMenuItem("Report");
+        mntmPrintReport.setMnemonic('R');
         mntmPrintReport.addActionListener(this::showReport);
         mnNewMenu.add(mntmPrintReport);
         

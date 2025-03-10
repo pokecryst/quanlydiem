@@ -2,7 +2,9 @@ package dao;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JOptionPane;
 
@@ -10,6 +12,26 @@ import entity.Employee;
 import service.ConnectDB;
 
 public class EmployeeDao {
+	private static final String EMP_PREFIX = "2";
+	private static final Map<String, Integer> hireCount = new HashMap<>();
+	
+	public static Integer generateEmpId(int year, int month) {
+		var monthStr = String.format("%02d", month);
+		var yearStr = String.format("%02d", year % 100);
+		
+		String key = yearStr + monthStr;
+		
+		// Increment student count for this year-month
+		hireCount.put(key, hireCount.getOrDefault(key, 0) + 1);
+        int empNumber = hireCount.get(key);
+
+        // Format student number to be three digits (001, 002, etc.)
+        Integer finalId = Integer.parseInt(EMP_PREFIX + yearStr + monthStr + String.format("%03d", empNumber));
+        // Construct final student ID
+        return finalId;
+		
+	}
+	
 	public List<Employee> selectEmployee() {
 		List<Employee> list = new ArrayList<>();
 		try (var conn = ConnectDB.getCon();
@@ -136,15 +158,16 @@ public class EmployeeDao {
 		}
 	}
 
-	public void insertEmployee(Employee emp) {
-		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call createEmp(?, ?, ?, ?, ?, ?, ?)}")) {
-			cs.setString(1, emp.getEmpName());
-			cs.setBoolean(2, emp.getEmpGender());
-			cs.setDate(3, java.sql.Date.valueOf(emp.getEmpDob()));
-			cs.setString(4, emp.getEmpPhone());
-			cs.setString(5, emp.getEmpAddress());
-			cs.setString(6, emp.getEmpImage());
-			cs.setInt(7, emp.getRoleId());
+	public void insertEmployee(Employee emp, int year, int month) {
+		try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call createEmp(?, ?, ?, ?, ?, ?, ?, ?)}")) {
+			cs.setInt(1, generateEmpId(year, month));
+			cs.setString(2, emp.getEmpName());
+			cs.setBoolean(3, emp.getEmpGender());
+			cs.setDate(4, java.sql.Date.valueOf(emp.getEmpDob()));
+			cs.setString(5, emp.getEmpPhone());
+			cs.setString(6, emp.getEmpAddress());
+			cs.setString(7, (emp.getEmpImage() != null) ? emp.getEmpImage(): "images/a.jpg");
+			cs.setInt(8, emp.getRoleId());
 			cs.execute();
 			JOptionPane.showMessageDialog(null, "Add Success");
 		} catch (SQLException e) {

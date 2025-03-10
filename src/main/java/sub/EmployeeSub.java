@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -375,7 +376,7 @@ public class EmployeeSub extends JPanel {
 		} else {
 			emp.setEmpImage(fileold);
 		}
-		dao.insertEmployee(emp);
+		dao.insertEmployee(emp, LocalDate.now().getYear(), LocalDate.now().getMonthValue());
 		resetEverything();
 	}
 

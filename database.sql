@@ -1,17 +1,17 @@
 ﻿USE master
 GO
 
-DROP DATABASE IF EXISTS QUANLYDIEM
-CREATE DATABASE QUANLYDIEM
+DROP DATABASE IF EXISTS SCOREMANAGER
+CREATE DATABASE SCOREMANAGER
 GO
 
-USE QUANLYDIEM
+USE SCOREMANAGER
 GO
 
 DROP TABLE IF EXISTS student
 CREATE TABLE student
 (
-	stuId INT PRIMARY KEY IDENTITY,
+	stuId INT PRIMARY KEY,
 	stuName NVARCHAR(50),
 	stuGender BIT,
 	stuDob DATE,
@@ -25,7 +25,7 @@ GO
 DROP TABLE IF EXISTS employee
 CREATE TABLE employee
 (
-	empId INT PRIMARY KEY IDENTITY,
+	empId INT PRIMARY KEY,
 	empName NVARCHAR(50),
 	empGender BIT,
 	empDob DATE,
@@ -155,140 +155,20 @@ FOREIGN KEY (clStatId) REFERENCES class_status(clStatId)
 ALTER TABLE student
 ADD CONSTRAINT DF_student_image DEFAULT 'images/a.jpg' FOR stuImage;
 
-ALTER TABLE enrollment
-ADD CONSTRAINT DF_enroll_status DEFAULT 0 FOR passStatus;
-
 ALTER TABLE employee
 ADD CONSTRAINT DF_employee_image DEFAULT 'images/a.jpg' FOR empImage;
 
-
-INSERT INTO student(stuName, stuAddress, stuDob, stuEmail, stuGender, stuPhone, stuImage)
-VALUES( 'StudentName', 'address', '2013-10-09', 'stu@gmail.com', 1, '0039939830', 'images/a.jpg')
-GO 10
-
-createStu 'StudentName', 1, '2013-10-09', 'stu@gmail.com', '0039939830', 'address', 'images/a.jpg'
-GO 
-
-INSERT INTO roles(roleName)
-VALUES('admin')
 GO
-INSERT INTO roles(roleName)
-VALUES('teacher')
-GO
-INSERT INTO roles(roleName)
-VALUES('staff')
-GO
-
-INSERT INTO class_status(clStatName)
-VALUES('enrolling')
-GO
-INSERT INTO class_status(clStatName)
-VALUES('in progress')
-GO
-INSERT INTO class_status(clStatName)
-VALUES('finished')
-GO
-
-INSERT INTO employee(empName, empAddress, empDob, empGender, empPhone, empImage, roleId)
-VALUES('AdminName', 'address', '1999-10-24', 0, '0039939820', 'images/a.jpg', 1)
-GO
-
-INSERT INTO employee(empName, empAddress, empDob, empGender, empPhone, empImage, roleId)
-VALUES('StaffName', 'address', '1999-10-24', 0, '0039939820', 'images/a.jpg', 3)
-GO 2
-
-INSERT INTO employee(empName, empAddress, empDob, empGender, empPhone, empImage, roleId)
-VALUES('TeaName', 'address', '1999-10-24', 0, '0039939820', 'images/a.jpg', 2)
-GO 5
-
-
-
-
-INSERT INTO course(courseName, courseDesc, courseDuration)
-VALUES('Tiếng Anh Giao Tiếp', 'course desc', 10)
-GO
-INSERT INTO course(courseName, courseDesc, courseDuration)
-VALUES('Tiếng Anh Thương Mại', 'course desc', 10)
-GO
-
-INSERT INTO class(className, courseId, startDate, endDate, empId, clStatId)
-VALUES('GT01', 1, '2025-03-10', '2025-03-31', 4, 1)
-GO
-INSERT INTO class(className, courseId, startDate, endDate, empId, clStatId)
-VALUES('TM01', 2, '2025-03-10', '2025-03-31', 5, 1)
-GO
-
-createEnrollmentAGrade 1, 1
-GO
-createEnrollmentAGrade 2, 1
-GO
-createEnrollmentAGrade 3, 1
-GO
-createEnrollmentAGrade 4, 1
-GO
-createEnrollmentAGrade 5, 1
-GO
-createEnrollmentAGrade 6, 2
-GO
-createEnrollmentAGrade 7, 2
-GO
-createEnrollmentAGrade 8, 2
-GO
-createEnrollmentAGrade 9, 2
-GO
-createEnrollmentAGrade 10, 2
-GO
-
-INSERT INTO enrollment(enrollDate, stuId, classId)
-VALUES('2024-10-09', 1, 1)
-GO
-INSERT INTO enrollment(enrollDate, stuId, classId)
-VALUES('2024-10-09', 2, 1)
-GO
-INSERT INTO enrollment(enrollDate, stuId, classId)
-VALUES('2024-10-09', 3, 1)
-GO
-INSERT INTO enrollment(enrollDate, stuId, classId)
-VALUES('2024-10-10', 4, 1)
-GO
-INSERT INTO enrollment(enrollDate, stuId, classId)
-VALUES('2024-10-10', 5, 1)
-GO
-INSERT INTO enrollment(enrollDate, stuId, classId)
-VALUES('2024-10-09', 6, 2)
-GO
-INSERT INTO enrollment(enrollDate, stuId, classId)
-VALUES('2024-10-09', 7, 2)
-GO
-INSERT INTO enrollment(enrollDate, stuId, classId)
-VALUES('2024-10-09', 8, 2)
-GO
-INSERT INTO enrollment(enrollDate, stuId, classId)
-VALUES('2024-10-12', 9, 2)
-GO
-INSERT INTO enrollment(enrollDate, stuId, classId)
-VALUES('2024-10-12', 10, 2)
-GO
-
-
-INSERT INTO accounts(accEmail, accPass, roleId, accStatus, empId)
-VALUES('admin@edu.com', '$2a$10$5xvLtIFH6zHNZ2VBurgmk.rqzW6/HFlE734ZUB2GW55y0Li50eW8G', 1, 0, 1)
-GO
-INSERT INTO accounts(accEmail, accPass, roleId, accStatus, empId)
-VALUES('sta@edu.com', '$2a$10$O/FJd6RoV31ufLjnBI9FR.3th0XPiVfvi7aS.OhSH6siI/VAuTUxO', 3, 0, 2)
-GO
-INSERT INTO accounts(accEmail, accPass, roleId, accStatus, empId)
-VALUES('tea@edu.com', '$2a$10$gjTCbcZ6HAm60mGy2bWidu3lU1rZD71L6Yie9UO6cRjH6oqqqXZ2u', 2, 1, 4)
-GO
-
 --stored procedure
 --class status
+
 CREATE OR ALTER PROCEDURE selectClStatus
 AS
 BEGIN
 	SELECT * FROM class_status
 END
 GO
+
 
 CREATE OR ALTER PROCEDURE selectClassStatusByID
 @clStatID INT
@@ -362,9 +242,6 @@ BEGIN
 	WHERE accId = @accId
 END
 GO
-
-returnPassOnly 1
-
 
 --- store select account ---
 CREATE OR ALTER PROC selectAcc
@@ -441,6 +318,17 @@ BEGIN
 END
 GO
 
+CREATE OR ALTER PROC createStus
+@stuId INT, @stuName NVARCHAR(50), @stuGender BIT, @stuDob DATE, @stuEmail VARCHAR(100), @stuPhone NVARCHAR(10), @stuAddress NVARCHAR(200), @stuImage NVARCHAR(300)
+AS
+BEGIN
+	INSERT INTO student(stuId, stuName, stuGender, stuDob, stuEmail, stuPhone, stuAddress, stuImage)
+	VALUES(@stuId, @stuName, @stuGender, @stuDob, @stuEmail, @stuPhone, @stuAddress, @stuImage)
+END
+GO
+
+
+
 	--R
 CREATE OR ALTER PROC selectStu
 AS
@@ -493,6 +381,7 @@ GO
 --EMPLOYEE
 	--C
 CREATE OR ALTER PROC createEmp
+@empId INT,
 @empName NVARCHAR(50), 
 @empGender BIT, 
 @empDob DATE, 
@@ -502,8 +391,8 @@ CREATE OR ALTER PROC createEmp
 @roleId INT
 AS
 BEGIN
-    INSERT INTO employee (empName, empGender, empDob, empPhone, empAddress, empImage, roleId)
-    VALUES (@empName, @empGender, @empDob, @empPhone, @empAddress, @empImage, @roleId)
+    INSERT INTO employee (empId, empName, empGender, empDob, empPhone, empAddress, empImage, roleId)
+    VALUES (@empId, @empName, @empGender, @empDob, @empPhone, @empAddress, @empImage, @roleId)
 END
 GO
 	--R
@@ -864,43 +753,6 @@ END
 GO
 
 --PAGING
-
-CREATE OR ALTER PROC paging
-    @query NVARCHAR(MAX),
-    @column NVARCHAR(20),
-    @currentpage INT,
-    @numberofrows INT
-AS
-BEGIN
-    DECLARE @sql NVARCHAR(MAX);
-    SET @sql = @query
-              + ' ORDER BY ' + QUOTENAME(@column)
-              + ' OFFSET (' + CAST((@currentpage - 1) * @numberofrows AS NVARCHAR(20)) + ') ROWS'
-              + ' FETCH NEXT ' + CAST(@numberofrows AS NVARCHAR(20)) + ' ROWS ONLY';
-
-    EXEC sp_executesql @sql;
-END;
-GO
-
-CREATE OR ALTER PROC pagingWithIds
-    @table NVARCHAR(20),
-    @column NVARCHAR(20),
-    @ids NVARCHAR(MAX),
-    @currentpage INT,
-    @numberofrows INT
-AS
-BEGIN
-    DECLARE @sql NVARCHAR(MAX);
-    SET @sql = 'SELECT * FROM ' + QUOTENAME(@table)
-              + ' WHERE ' + QUOTENAME(@column) + ' IN (' + @ids + ')'
-              + ' ORDER BY ' + QUOTENAME(@column)
-              + ' OFFSET (' + CAST((@currentpage - 1) * @numberofrows AS NVARCHAR(20)) + ') ROWS'
-              + ' FETCH NEXT ' + CAST(@numberofrows AS NVARCHAR(20)) + ' ROWS ONLY';
-
-    EXEC sp_executesql @sql;
-END;
-GO
-
 --student list
 CREATE OR ALTER PROC pagingStudentList
 @currentpage INT, @numberofrows INT, @classId INT
@@ -1174,10 +1026,6 @@ BEGIN
 END
 GO
 
-EXEC pagingSearchStudent @searchName = 'name', @searchGender = 0
- 
-
-
 CREATE OR ALTER PROC countStudent
 AS
 BEGIN
@@ -1244,23 +1092,6 @@ END
 GO
 
 
-
-	--count something
-CREATE OR ALTER PROC countSth
-    @column NVARCHAR(20),
-    @table NVARCHAR(20)
-AS
-BEGIN
-    DECLARE @sql NVARCHAR(MAX);
-
-    -- Construct the dynamic SQL query
-    SET @sql = N'SELECT COUNT(' + QUOTENAME(@column) + N') AS total FROM ' + QUOTENAME(@table);
-
-    -- Execute the dynamic SQL
-    EXEC sp_executesql @sql;
-END
-GO
-
 --total student
 CREATE OR ALTER PROC totalStudent
 AS
@@ -1296,6 +1127,68 @@ BEGIN
 END
 GO
 
-use QUANLYDIEM
+
+INSERT INTO roles(roleName)
+VALUES('admin')
 GO
+INSERT INTO roles(roleName)
+VALUES('teacher')
+GO
+INSERT INTO roles(roleName)
+VALUES('staff')
+GO
+
+INSERT INTO class_status(clStatName)
+VALUES('enrolling')
+GO
+INSERT INTO class_status(clStatName)
+VALUES('in progress')
+GO
+INSERT INTO class_status(clStatName)
+VALUES('finished')
+GO
+
+INSERT INTO employee(empId, empName, empAddress, empDob, empGender, empPhone, empImage, roleId)
+VALUES(22501001 ,'AdminName', 'address', '1999-10-24', 0, '0039939820', 'images/a.jpg', 1)
+GO
+
+INSERT INTO employee(empId, empName, empAddress, empDob, empGender, empPhone, empImage, roleId)
+VALUES(22501002 ,'StaffName', 'address', '1999-10-24', 0, '0039939820', 'images/a.jpg', 3)
+GO 
+
+INSERT INTO employee(empId, empName, empAddress, empDob, empGender, empPhone, empImage, roleId)
+VALUES(22501003 ,'TeaName', 'address', '1999-10-24', 0, '0039939820', 'images/a.jpg', 2)
+GO 
+
+INSERT INTO employee(empId, empName, empAddress, empDob, empGender, empPhone, empImage, roleId)
+VALUES(22501004 ,'TeaName2', 'address', '1999-10-24', 0, '0039939820', 'images/a.jpg', 2)
+GO 
+
+INSERT INTO accounts(accEmail, accPass, roleId, accStatus, empId)
+VALUES('admin@edu.com', '$2a$10$5xvLtIFH6zHNZ2VBurgmk.rqzW6/HFlE734ZUB2GW55y0Li50eW8G', 1, 1, 22501001)
+GO
+INSERT INTO accounts(accEmail, accPass, roleId, accStatus, empId)
+VALUES('sta@edu.com', '$2a$10$O/FJd6RoV31ufLjnBI9FR.3th0XPiVfvi7aS.OhSH6siI/VAuTUxO', 3, 1, 22501002)
+GO
+INSERT INTO accounts(accEmail, accPass, roleId, accStatus, empId)
+VALUES('tea@edu.com', '$2a$10$gjTCbcZ6HAm60mGy2bWidu3lU1rZD71L6Yie9UO6cRjH6oqqqXZ2u', 2, 1, 22501003)
+GO
+
+
+INSERT INTO course(courseName, courseDesc, courseDuration)
+VALUES('English for Communication', 'course desc', 10)
+GO
+INSERT INTO course(courseName, courseDesc, courseDuration)
+VALUES('Business English', 'course desc', 10)
+GO
+
+INSERT INTO class(className, courseId, startDate, endDate, empId, clStatId)
+VALUES('GT01', 1, '2025-03-10', '2025-03-31', 22501003, 1)
+GO
+INSERT INTO class(className, courseId, startDate, endDate, empId, clStatId)
+VALUES('TM01', 2, '2025-03-10', '2025-03-31', 22501004, 1)
+GO
+
+
+
 
