@@ -89,7 +89,7 @@ public class StudentDao {
 	public List<Student> pagingStudent(Integer currentPage, Integer numberOfRows) {
 	    List<Student> list = new ArrayList<>();
 	    try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call pagingStudent(?, ?)}")) {
-	        cs.setInt(1, currentPage);
+	        cs.setInt(1, (currentPage == null) ? 1 : currentPage);
 	        cs.setInt(2, numberOfRows);
 	        try (var rs = cs.executeQuery()) {
 	            while (rs.next()) {
@@ -111,6 +111,66 @@ public class StudentDao {
 	    return list;
 	}
 	
+	public List<Student> pagingSearchStudent(String searchName, Boolean searchGender, String searchEmail, String searchPhone, Integer currentPage, Integer numberOfRows) {
+	    List<Student> list = new ArrayList<>();
+	    
+	    try (var conn = ConnectDB.getCon(); 
+	         var cs = conn.prepareCall("{call pagingSearchStudent(?, ?, ?, ?, ?, ?)}")) {
+	        
+	    	
+	        cs.setString(1, searchName);
+	        cs.setBoolean(2, (searchGender == null) ? null : searchGender);
+	        cs.setString(3, searchEmail);
+	        cs.setString(4, searchPhone);
+	        cs.setInt(5, currentPage);
+	        cs.setInt(6, numberOfRows);
+	        
+	        try (var rs = cs.executeQuery()) {
+	            while (rs.next()) {
+	                var stu = new Student();
+	                stu.setStuId(rs.getInt("stuId"));
+	                stu.setStuName(rs.getString("stuName"));
+	                stu.setStuGender(rs.getBoolean("stuGender"));
+	                stu.setStuDob(rs.getDate("stuDob").toLocalDate());
+	                stu.setStuEmail(rs.getString("stuEmail"));
+	                stu.setStuPhone(rs.getString("stuPhone"));
+	                stu.setStuAddress(rs.getString("stuAddress"));
+	                stu.setStuImage(rs.getString("stuImage"));
+	                list.add(stu);
+	            }
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    
+	    return list;
+	}
+	
+	public int countSearchStudent(String searchName, Boolean searchGender, String searchEmail, String searchPhone) {
+	    int count = 0;
+	    
+	    try (var conn = ConnectDB.getCon(); 
+	         var cs = conn.prepareCall("{call countSearchStudent(?, ?, ?, ?)}")) {	    	
+	        // Set parameters, handling NULL values
+	        cs.setObject(1, searchName);
+	        cs.setObject(2, searchGender);
+	        cs.setObject(3, searchEmail);
+	        cs.setObject(4, searchPhone);
+	        
+	        try (var rs = cs.executeQuery()) {
+	            if (rs.next()) {
+	                count = rs.getInt(1); 
+	            }
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    
+	    return count;
+	}
+
+
+	
 	public Integer countStudent() {
 		var count = 0;
 
@@ -129,9 +189,6 @@ public class StudentDao {
 
 		return count;
 	}
-
-
-
-	
+		
 	
 }

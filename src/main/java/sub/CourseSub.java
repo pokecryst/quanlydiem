@@ -110,6 +110,7 @@ public class CourseSub extends JPanel {
 //		add(contentQLD_GV);
 		
 		 desktopPane = new JDesktopPane();
+		 desktopPane.setBackground(new Color(240, 240, 240));
 	     add(desktopPane, BorderLayout.CENTER);
 	     desktopPane.setLayout(null);
 
@@ -167,6 +168,7 @@ public class CourseSub extends JPanel {
 
 		btnDeleteCourse = new JButton("Delete");
 		btnDeleteCourse.setBounds(797, 281, 89, 30);
+		btnDeleteCourse.addActionListener(this::btnDeleteCourseActionPerformed);
 		desktopPane.add(btnDeleteCourse);
 
 		lblNewLabel_1 = new JLabel("Class");
@@ -257,7 +259,7 @@ public class CourseSub extends JPanel {
 		desktopPane.add(txtStuCount);
 		
 		JButton btnClassDetails = new JButton("Details");
-		btnClassDetails.setBounds(450, 606, 107, 30);
+		btnClassDetails.setBounds(459, 603, 107, 30);
 		btnClassDetails.addActionListener(this::btnDetailsActionPerformed);
 		desktopPane.add(btnClassDetails);
 
@@ -534,6 +536,29 @@ public List<Object[]> loadCourse(int currentPage, int numberOfRows) {
 	        resetEverything(); // Refresh the form and table
 	    }
 	}
+	
+	protected void btnDeleteCourseActionPerformed(ActionEvent e) {
+	    // Ensure a course is selected
+	    if (txtCourseId.getText().isEmpty()) {
+	        JOptionPane.showMessageDialog(null, "Please select a course to delete!");
+	        return;
+	    }
+
+	    // Parse Course ID
+	    int courseId = Integer.parseInt(txtCourseId.getText());
+
+	    // Confirm deletion
+	    int confirm = JOptionPane.showConfirmDialog(null, 
+	        "Are you sure you want to delete this course?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+
+	    if (confirm == JOptionPane.YES_OPTION) {
+	        var dao = new CourseDao(); // Assuming you have a CourseDao class
+	        dao.deleteCourse(courseId);
+	        resetEverything();
+	        JOptionPane.showMessageDialog(null, "Course deleted successfully!");
+	    }
+	}
+
 
 	
 	protected void resetEverything() {

@@ -47,6 +47,15 @@ public class TablePage extends JPanel implements Paging.PagingListener {
     	List<Object[]> fetchData(Integer currentPage, Integer numberOfRows);
 
     }
+    
+    public void setDataFetcher(DataFetcher dataFetcher) {
+        this.dataFetcher = dataFetcher;
+    }
+    
+    public void setCountFetcher(CountFetcher countFetcher) {
+    	this.countFetcher = countFetcher;
+        paging.setCountFetcher(countFetcher); // Ensure Paging component updates count correctly
+    }
 
 
 

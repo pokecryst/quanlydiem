@@ -570,7 +570,7 @@ CREATE OR ALTER PROC deleteEmp
 AS
 BEGIN
     DELETE FROM employee
-    WHERE empId = @empId
+    WHERE empId = @empId AND empId != 1 
 END
 GO
 
@@ -1089,6 +1089,55 @@ BEGIN
 	SELECT COUNT(accId) total FROM accounts
 END
 GO
+
+CREATE OR ALTER PROC pagingSearchAccounts
+    @accEmail NVARCHAR(100) = NULL, 
+    @accStatus BIT = NULL,  
+    @accId INT = NULL,  
+    @roleId INT = NULL,  
+    @empId INT = NULL,  
+    @currentpage INT = 1, 
+    @numberofrows INT = 10
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT * 
+    FROM accounts
+    WHERE 
+        (@accEmail IS NULL OR accEmail LIKE '%' + @accEmail + '%')
+        AND (@accStatus IS NULL OR accStatus = @accStatus)
+        AND (@accId IS NULL OR accId = @accId)
+        AND (@roleId IS NULL OR roleId = @roleId)
+        AND (@empId IS NULL OR empId = @empId)
+    ORDER BY accId
+    OFFSET ((@currentpage - 1) * @numberofrows) ROWS
+    FETCH NEXT @numberofrows ROWS ONLY;
+END
+GO
+
+CREATE OR ALTER PROC countSearchAccounts
+    @accEmail NVARCHAR(100) = NULL, 
+    @accStatus BIT = NULL,  
+    @accId INT = NULL,  
+    @roleId INT = NULL,  
+    @empId INT = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT COUNT(accId) 
+    FROM accounts
+    WHERE 
+        (@accEmail IS NULL OR accEmail LIKE '%' + @accEmail + '%')
+        AND (@accStatus IS NULL OR accStatus = @accStatus)
+        AND (@accId IS NULL OR accId = @accId)
+        AND (@roleId IS NULL OR roleId = @roleId)
+        AND (@empId IS NULL OR empId = @empId);
+END
+GO
+
+
 --Student
 CREATE OR ALTER PROC pagingStudent
 @currentpage INT, @numberofrows INT
@@ -1101,11 +1150,58 @@ BEGIN
 END
 GO
 
+CREATE OR ALTER PROC pagingSearchStudent
+    @searchName NVARCHAR(50) = NULL, 
+    @searchGender BIT = NULL,  
+    @searchEmail NVARCHAR(100) = NULL, 
+    @searchPhone NVARCHAR(10) = NULL, 
+    @currentpage INT = 1, 
+    @numberofrows INT = 10
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT * 
+    FROM student
+    WHERE 
+        (@searchName IS NULL OR stuName LIKE '%' + @searchName + '%')
+        AND (@searchGender IS NULL OR stuGender = @searchGender)
+        AND (@searchEmail IS NULL OR stuEmail LIKE '%' + @searchEmail + '%')
+        AND (@searchPhone IS NULL OR stuPhone LIKE '%' + @searchPhone + '%')
+    ORDER BY stuId
+    OFFSET ((@currentpage - 1) * @numberofrows) ROWS
+    FETCH NEXT @numberofrows ROWS ONLY;
+END
+GO
+
+EXEC pagingSearchStudent @searchName = 'name', @searchGender = 0
+ 
+
 
 CREATE OR ALTER PROC countStudent
 AS
 BEGIN
 	SELECT COUNT(stuId) total FROM student
+END
+GO
+
+CREATE OR ALTER PROC countSearchStudent
+    @searchName NVARCHAR(50) = NULL, 
+    @searchGender BIT = NULL,  
+    @searchEmail NVARCHAR(100) = NULL, 
+    @searchPhone NVARCHAR(10) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT count(stuId) 
+    FROM student
+    WHERE 
+        (@searchName IS NULL OR stuName LIKE '%' + @searchName + '%')
+        AND (@searchGender IS NULL OR stuGender = @searchGender)
+        AND (@searchEmail IS NULL OR stuEmail LIKE '%' + @searchEmail + '%')
+        AND (@searchPhone IS NULL OR stuPhone LIKE '%' + @searchPhone + '%')
+   
 END
 GO
 

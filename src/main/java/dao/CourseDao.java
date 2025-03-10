@@ -4,6 +4,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import entity.Classes;
 import entity.Course;
 import service.ConnectDB;
@@ -133,5 +135,17 @@ public class CourseDao {
 			e.printStackTrace();
 		}
 	}
+	
+	public void deleteCourse(int courseId) {
+	    try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call deleteCourse(?)}")) {
+	        cs.setInt(1, courseId);
+	        cs.execute();
+	        JOptionPane.showMessageDialog(null, "Course deleted successfully!");
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Failed to delete course!");
+	    }
+	}
+
 
 }

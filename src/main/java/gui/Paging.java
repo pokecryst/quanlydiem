@@ -39,6 +39,11 @@ public class Paging extends JPanel {
     public interface CountFetcher {
       int countTotalRows();
   }
+    
+    public void setCountFetcher(CountFetcher countFetcher) {
+        this.countFetcher = countFetcher;
+       
+    }
 
     public Paging(CountFetcher countFetcher) {
     	 	this.countFetcher = countFetcher;  // Ensure countFetcher is assigned

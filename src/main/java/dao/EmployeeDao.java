@@ -153,6 +153,19 @@ public class EmployeeDao {
 		}
 	}
 	
+	public void deleteEmployee(int empId) {
+	    try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call deleteEmp(?)}")) {
+	        cs.setInt(1, empId);
+	        cs.execute();
+	       
+	        JOptionPane.showMessageDialog(null, "Deleted successfully!");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Failed! Check if Employee is being assigned to any Accounts or Classes");
+	    }
+	}
+
+	
 	// test function
 		public Integer getRoleIdByEmpId(Integer empId) {
 			var sql = "{call GetRoleIdByEmpId(?)}";

@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import dao.AccountDao;
@@ -30,6 +32,7 @@ import dao.CourseDao;
 import dao.EmployeeDao;
 import dao.EnrollStuDao;
 import dao.GradeStuDao;
+import dao.StudentDao;
 import entity.Account;
 import entity.Course;
 import entity.Employee;
@@ -91,7 +94,6 @@ public class AcountSub extends JPanel {
 		add(lblEmpId);
 
 		txtAccId = new JTextField();
-		txtAccId.setEditable(false);
 		txtAccId.setBounds(170, 402, 200, 30);
 		add(txtAccId);
 		txtAccId.setColumns(10);
@@ -105,7 +107,7 @@ public class AcountSub extends JPanel {
 		passwordField.setBounds(170, 502, 200, 30);
 		add(passwordField);
 
-		cbbRoleId = new JComboBox<>(new DefaultComboBoxModel<>(new Integer[] { 1, 2, 3 }));
+		cbbRoleId = new JComboBox<>(new DefaultComboBoxModel<>(new Integer[] { 0, 1, 2, 3 }));
 		cbbRoleId.setBounds(672, 406, 200, 30);
 		add(cbbRoleId);
 
@@ -124,6 +126,7 @@ public class AcountSub extends JPanel {
 				var roleId = dao.getRoleIdByEmpId(selectedEmpId);
 				if (roleId != null) {
 					cbbRoleId.setSelectedItem(roleId);
+					
 				}
 			}
 		});
@@ -136,19 +139,20 @@ public class AcountSub extends JPanel {
 
 		btnAddAcc = new JButton("Add Account");
 		btnAddAcc.addActionListener(this::btnAddAccActionPerformed);
-		btnAddAcc.setBounds(682, 573, 200, 100);
+		btnAddAcc.setBounds(475, 588, 150, 85);
 		add(btnAddAcc);
 
 		btnEditAccount = new JButton("Edit Account");
 		btnEditAccount.addActionListener(this::btnEditAccountActionPerformed);
-		btnEditAccount.setBounds(10, 573, 200, 100);
+		btnEditAccount.setBounds(56, 588, 168, 85);
 		add(btnEditAccount);
 
 		btnDeleteAccount = new JButton("Delete Account");
-		btnDeleteAccount.setBounds(342, 573, 200, 100);
+		btnDeleteAccount.setBounds(263, 588, 168, 85);
+		btnDeleteAccount.addActionListener(this::btnDeleteAccountActionPerformed);
 		add(btnDeleteAccount);
 
-		btnNewButton = new JButton("Clear Field");
+		btnNewButton = new JButton("Refresh");
 		btnNewButton.addActionListener(this::btnNewButtonActionPerformed);
 		btnNewButton.setBounds(10, 368, 120, 23);
 		add(btnNewButton);
@@ -183,12 +187,19 @@ public class AcountSub extends JPanel {
 				    6, value -> handleCurrentEmp(value)
 				);
 			tablePageAccount.setFieldMappings(accountsMappings);
+			tablePageAccount.setColumnVisibility(2, false);
 			tablePageAccount.setOnTableClickListener(() -> {
-			    cbbRoleId.setEnabled(false); // Disable role selection when table row is clicked
+			    cbbRoleId.setEnabled(false);
+			    txtAccId.setEnabled(false);
 			});
 		
 		
 		add(tablePageAccount);
+		
+		JButton btnSearchAcc = new JButton("Search Account");
+		btnSearchAcc.setBounds(668, 588, 150, 85);
+		btnSearchAcc.addActionListener(this::searchBtnAction);
+		add(btnSearchAcc);
 		
 		tablePageAccount.resetTable();
 //		loadEmpId();
@@ -214,12 +225,15 @@ public class AcountSub extends JPanel {
 		var dao    = new EmployeeDao();
 		var empIds = dao.getEmpIdsWithoutAccount();
 		cbbEmpId.removeAllItems();
+		cbbEmpId.addItem(0);
 		for (Integer empId : empIds) {
 			cbbEmpId.addItem(empId);
 		}
 	}
 	
 	// event combobox
+
+
 
 	// Load data to table
 	public List<Object[]> LoadDataAcc(int currentPage, int numberOfRows) {
@@ -234,7 +248,8 @@ public class AcountSub extends JPanel {
             		acc.getAccEmail(),
             		acc.getAccPass(),
           		    acc.getRoleId(),
-          		    (acc.getAccCreateDate() != null)? Date.valueOf(acc.getAccCreateDate()): null,
+          		    (acc.getAccCreateDate() != null) ? java.sql.Date.valueOf(acc.getAccCreateDate()) : null,
+
           		    acc.getAccStatus(),
           		    acc.getEmpId()
               }
@@ -245,11 +260,63 @@ public class AcountSub extends JPanel {
         return list;
 	}
 	
+	public List<Object[]> searchDataAccount(int currentPage, int numberOfRows) {
+	    // Get search parameters from UI components
+	    var searchAccId = (txtAccId.getText().isEmpty()) ? null : Integer.parseInt(txtAccId.getText());
+	    var searchAccEmail = (txtAccmail.getText().isEmpty()) ? null : txtAccmail.getText();
+	    var searchRoleId = ((Integer)cbbRoleId.getSelectedItem() == 0) ? null : (Integer) cbbRoleId.getSelectedItem();
+	    var searchStatus = (chckStatusAcc.isSelected()) ? true : null;
+	    var searchEmpId = ((Integer)cbbEmpId.getSelectedItem() == 0) ? null : (Integer) cbbEmpId.getSelectedItem();
+
+	    List<Object[]> list = new ArrayList<>();
+	    var dao = new AccountDao();
+	    var accounts = dao.pagingSearchAccounts(searchAccEmail, searchStatus, searchAccId, searchRoleId, searchEmpId, currentPage, numberOfRows);
+
+	    for (var acc : accounts) {
+        	list.add(
+              new Object[] {
+            		acc.getAccId(),
+            		acc.getAccEmail(),
+            		acc.getAccPass(),
+          		    acc.getRoleId(),
+          		  (acc.getAccCreateDate() != null) ? java.sql.Date.valueOf(acc.getAccCreateDate()) : null,
+          		    acc.getAccStatus(),
+          		    acc.getEmpId()
+              }
+	        		);
+	    }
+	    return list;
+	}
+	
+	protected void searchBtnAction (ActionEvent e) {
+		 // Update the data fetcher and count fetcher in the existing table instance
+	    tablePageAccount.setDataFetcher(this::searchDataAccount);
+	    tablePageAccount.setCountFetcher(this::countTotalRowsSearchAccount);
+	    
+	    // Refresh the table to apply the new search parameters
+	    tablePageAccount.resetTable();
+	    
+	    JOptionPane.showMessageDialog(null, "Search completed!");
+	}
+
+	
 	private Integer countTotalRows() {
     	
       var accDao = new AccountDao();
       return accDao.countAcc(); // Only counting total rows here
   }
+	
+	private Integer countTotalRowsSearchAccount() {
+	    var searchAccEmail = (txtAccmail.getText().isEmpty()) ? null : txtAccmail.getText();
+	    var searchStatus = chckStatusAcc.isSelected() ? true : null;
+	    var searchAccId = (txtAccId.getText().isEmpty()) ? null : Integer.parseInt(txtAccId.getText());
+	    var searchRoleId = (cbbRoleId.getSelectedItem() == null) ? null : (Integer) cbbRoleId.getSelectedItem();
+	    var searchEmpId = (cbbEmpId.getSelectedItem() == null) ? null : (Integer) cbbEmpId.getSelectedItem();
+
+	    var dao = new AccountDao();
+	    return dao.countSearchAccounts(searchAccEmail, searchStatus, searchAccId, searchRoleId, searchEmpId);
+	}
+
 
 	// button add account
 	protected void btnAddAccActionPerformed(ActionEvent e) {
@@ -306,19 +373,50 @@ public class AcountSub extends JPanel {
 		loadEmpId();
 		tablePageAccount.resetTable();
 	}
+	
+	protected void btnDeleteAccountActionPerformed(ActionEvent e) {
+	    // Ensure an account is selected
+	    if (txtAccId.getText().isEmpty()) {
+	        JOptionPane.showMessageDialog(null, "Please select an account to delete!");
+	        return;
+	    }
+
+	    // Parse Account ID
+	    int accId = Integer.parseInt(txtAccId.getText());
+
+	    // Confirm deletion
+	    int confirm = JOptionPane.showConfirmDialog(null, 
+	        "Are you sure you want to delete this account?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+
+	    if (confirm == JOptionPane.YES_OPTION) {
+	        var dao = new AccountDao(); // Assuming you have an AccountDao class
+	        dao.deleteAccount(accId);
+	        resetEverything(); 
+	    }
+	}
+
 
 	protected void btnNewButtonActionPerformed(ActionEvent e) {
+		resetEverything();
+		
+	}
+	
+	protected void resetEverything() {
 		// clear data in textfield
-		txtAccId.setText("");
-		txtAccmail.setText("");
-		passwordField.setText("");
-		cbbRoleId.setSelectedIndex(0);
-		cbbEmpId.setSelectedIndex(0);
-		chckStatusAcc.setSelected(false);
+				txtAccId.setText("");
+				txtAccmail.setText("");
+				passwordField.setText("");
+				cbbRoleId.setSelectedIndex(0);
+				cbbEmpId.setSelectedIndex(0);
+				chckStatusAcc.setSelected(false);
 
-		// reset data
-		loadEmpId();
-		cbbRoleId.setEnabled(true);
-		tablePageAccount.resetTable();
+				// reset data
+				loadEmpId();
+				cbbRoleId.setEnabled(true);
+				txtAccId.setEnabled(true);
+				
+				tablePageAccount.setDataFetcher(this::LoadDataAcc);
+				tablePageAccount.setCountFetcher(this::countTotalRows);
+				tablePageAccount.resetTable();
 	}
 }

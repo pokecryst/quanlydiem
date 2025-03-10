@@ -46,6 +46,8 @@ import gui.Paging.CountFetcher;
 import gui.TablePage;
 import gui.TablePage.DataFetcher;
 import java.awt.FlowLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class ManageClass extends JInternalFrame {
 
@@ -60,6 +62,7 @@ public class ManageClass extends JInternalFrame {
 	private JComboBox<Employee> cbbTeacher = new JComboBox<>();
 	private Classes classInfo = new Classes();
 	private ClassesDao classesDao = new ClassesDao();
+	private JTabbedPane tabbedPane = new JTabbedPane();
 	private TablePage tablePageRemoveStu;
 	private TablePage tablePageAddStu;
 
@@ -103,10 +106,15 @@ public class ManageClass extends JInternalFrame {
 		setBounds(100, 100, 501, 338);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		getContentPane().add(tabbedPane, BorderLayout.CENTER);
 		
 		JPanel UpdateClassPanel = new JPanel();
+		UpdateClassPanel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+			}
+		});
 		tabbedPane.addTab("Update Class Info", null, UpdateClassPanel, null);
 		GridBagLayout gbl_UpdateClassPanel = new GridBagLayout();
 		gbl_UpdateClassPanel.columnWidths = new int[] {0, 0, 10, 0};
@@ -348,9 +356,15 @@ public class ManageClass extends JInternalFrame {
 	        }
 	    }
 	
+	
 	public void setClassId(int classId) {		
 		this.classId = classId;
 		this.classInfo = classesDao.selectByClassID(classId);
+		
+		if(classInfo.getClStatId() != 1) {
+			tabbedPane.setEnabledAt(1, false);
+		 }
+		
 		tablePageRemoveStu.resetTable();
 		tablePageAddStu.resetTable();
 		refreshClassDetails();
@@ -412,25 +426,22 @@ public class ManageClass extends JInternalFrame {
     }
 	
 	private Integer countTotalRows() {
-//		var classInfo = selectClassByID();
       if (classInfo == null) {
-          return 0; // Return an empty list if no class is selected
+          return 0; 
       }
 
       var enrollStuDao = new EnrollStuDao();
-      return enrollStuDao.countStudentList(classInfo); // Only counting total rows here
+      return enrollStuDao.countStudentList(classInfo);
   }
 	
 	private List<Object[]> fetchDataAddStudent(int currentPage, int numberOfRows) {
-//    	var classInfo = selectClassByID();
       if (classInfo == null) {
-          return List.of(); // Return an empty list if no class is selected
+          return List.of(); 
       }
 
         List<Object[]> list = new ArrayList<>();
         var enrollStuDao = new EnrollStuDao();
         var enrollments = enrollStuDao.pagingStudentNotInClass(currentPage, numberOfRows, classInfo);
-//        var number = (currentPage - 1) * numberOfRows + 1;
 
         for(var en : enrollments) {
         	list.add(
@@ -477,7 +488,6 @@ public class ManageClass extends JInternalFrame {
 
 	 protected void btnRemoveStuActionPerformed(ActionEvent e) {
 		 List<Object> checkedRows = tablePageRemoveStu.checkedRows(0, 9);
-//		 JOptionPane.showMessageDialog(null, "Checked rows: " + checkedRows);
          var enDao = new EnrollmentDao();
          
          for (Object obj : checkedRows) {
@@ -490,7 +500,6 @@ public class ManageClass extends JInternalFrame {
 	 
 	 protected void btnAddStuActionPerformed(ActionEvent e) {
 		 List<Object> checkedRows = tablePageAddStu.checkedRows(0, 1);
-//		 JOptionPane.showMessageDialog(null, "Checked rows: " + checkedRows);
          var enDao = new EnrollmentDao();
          
          for (Object obj : checkedRows) {

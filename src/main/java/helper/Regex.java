@@ -10,4 +10,6 @@ public class Regex {
 	
 	//custom regex
 	public static final String CLASSNAME = "^[A-Za-z]{2}\\d{2}$";
+	public static final String GRADE= "^(10(?:\\.0{1,2})?|[0-9](?:\\.\\d{1,2})?)$";
+
 }

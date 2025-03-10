@@ -180,6 +180,7 @@ public class EmployeeSub extends JPanel {
 
 		btnDeleteEmp = new JButton("Delete");
 		btnDeleteEmp.setBounds(346, 589, 200, 100);
+		btnDeleteEmp.addActionListener(this::btnDeleteEmpActionPerformed);
 		add(btnDeleteEmp);
 
 		lblEmpAddress = new JLabel("Address");
@@ -191,7 +192,7 @@ public class EmployeeSub extends JPanel {
 		add(txtEmpAddress);
 		txtEmpAddress.setColumns(10);
 
-		btnNewButton_1 = new JButton("Clear Feild");
+		btnNewButton_1 = new JButton("Refresh");
 		btnNewButton_1.addActionListener(this::btnNewButton_1ActionPerformed);
 		btnNewButton_1.setBounds(10, 351, 120, 23);
 		add(btnNewButton_1);
@@ -304,6 +305,28 @@ public class EmployeeSub extends JPanel {
 		dao.updateEmployee(emp);
 		resetEverything();
 	}
+	
+	protected void btnDeleteEmpActionPerformed(ActionEvent e) {
+	    // Ensure an employee is selected
+	    if (txtEmpId.getText().isEmpty()) {
+	        JOptionPane.showMessageDialog(null, "Please select an employee to delete!");
+	        return;
+	    }
+
+	    // Parse Employee ID
+	    int empId = Integer.parseInt(txtEmpId.getText());
+
+	    // Confirm deletion
+	    int confirm = JOptionPane.showConfirmDialog(null, 
+	        "Are you sure you want to delete this employee?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+
+	    if (confirm == JOptionPane.YES_OPTION) {
+	        var dao = new EmployeeDao(); // Assuming you have an EmployeeDao class
+	        dao.deleteEmployee(empId);
+	        resetEverything(); 
+	    }
+	}
+
 	// event button change image
 
 	protected void btnNewButtonActionPerformed(ActionEvent e) {
@@ -367,8 +390,7 @@ public class EmployeeSub extends JPanel {
 
 		txtEmpId.setText("");
 		txtEmpName.setText("");
-		rdbtnMale.setSelected(false);
-		rdbtnFemale.setSelected(false);
+		buttonGroup.clearSelection();
 		txtEmpPhone.setText("");
 		txtEmpAddress.setText("");
 		dcHD.setDate(null);

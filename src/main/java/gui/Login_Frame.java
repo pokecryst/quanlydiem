@@ -92,19 +92,19 @@ public class Login_Frame extends JFrame {
 			var roleId = Integer.parseInt(validationResult.split(": ")[1]);
 			if (roleId == 1) {
 				JOptionPane.showMessageDialog(this, "Welcome Back ADMIN");
-				var AF = new TestFrame(account);
+				var AF = new MainFrame(account);
 				AF.setVisible(true);
 				AF.setLocationRelativeTo(null);
 				dispose();
 			} else if (roleId == 3) { 
 				JOptionPane.showMessageDialog(this, "Welcome Back STAFF");
-				var STF = new TestFrame(account);
+				var STF = new MainFrame(account);
 				STF.setVisible(true);
 				STF.setLocationRelativeTo(null);
 				dispose();
 			} else if (roleId == 2){
 				JOptionPane.showMessageDialog(this, "Welcome Back TEACHER");
-				var STF = new TestFrame(account);
+				var STF = new MainFrame(account);
 				STF.setVisible(true);
 				STF.setLocationRelativeTo(null);
 				dispose();

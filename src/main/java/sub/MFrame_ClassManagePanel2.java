@@ -499,9 +499,7 @@ public class MFrame_ClassManagePanel2 extends JPanel {
 				});
 				break;
 			case 3:
-				dao.selectAll().forEach(cla -> {
-					root.add(new DefaultMutableTreeNode(cla.getClassName()));
-				});
+				categorizeTree();
 				break;
 			default:
 				break;
@@ -734,8 +732,8 @@ public class MFrame_ClassManagePanel2 extends JPanel {
 		 var dao = new GradeDao();
 		 var enrollId = dao.selectEnrollIDByGradeID(Integer.parseInt(txtInputGradeID.getText()));
 		 var enrollDao = new EnrollmentDao();
-		 var midCheck = helper.Valid.checkRegex2(Regex.DOUBLE, txtMidScore.getText()); 
-		 var finalCheck = helper.Valid.checkRegex2(Regex.DOUBLE, txtFinalScore.getText());
+		 var midCheck = helper.Valid.checkRegex2(Regex.GRADE, txtMidScore.getText()); 
+		 var finalCheck = helper.Valid.checkRegex2(Regex.GRADE, txtFinalScore.getText());
 		 
 		 if(midCheck && finalCheck) {
 			 grade.setMidScore(Double.parseDouble(txtMidScore.getText()));

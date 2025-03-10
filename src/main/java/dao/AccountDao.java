@@ -1,6 +1,7 @@
 
 package dao;
 
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -141,6 +142,45 @@ public class AccountDao {
 
 		}
 		
+		public List<Account> pagingSearchAccounts(String accEmail, Boolean accStatus, Integer accId, Integer roleId, Integer empId, Integer currentPage, Integer numberOfRows) {
+		    List<Account> list = new ArrayList<>();
+		    
+		    try (var conn = ConnectDB.getCon(); 
+		         var cs = conn.prepareCall("{call pagingSearchAccounts(?, ?, ?, ?, ?, ?, ?)}")) {
+		        
+		        cs.setObject(1, accEmail);
+		        cs.setObject(2, accStatus);
+		        cs.setObject(3, accId);
+		        cs.setObject(4, roleId);
+		        cs.setObject(5, empId);
+		        cs.setInt(6, currentPage);
+		        cs.setInt(7, numberOfRows);
+		        
+		        try (var rs = cs.executeQuery()) {
+		            while (rs.next()) {
+		            	 var acc = new Account();
+		                 acc.setAccId(rs.getInt("accId"));
+		                 acc.setAccEmail(rs.getString("accEmail"));
+		                 acc.setAccPass(rs.getString("accPass"));
+		                 
+		                 Date sqlDate = rs.getDate("CreatedDate");
+		                 acc.setAccCreateDate(sqlDate != null ? sqlDate.toLocalDate() : null);
+		                 
+		                 
+		                 acc.setAccStatus(rs.getBoolean("accStatus"));
+		                 acc.setEmpId(rs.getInt("empId"));
+		                 acc.setRoleId(rs.getInt("roleId"));
+		                 list.add(acc);
+		            }
+		        }
+		    } catch (SQLException e) {
+		        e.printStackTrace();
+		    }
+		    
+		    return list;
+		}
+
+		
 		public Integer countAcc() {
 			var count = 0;
 
@@ -158,6 +198,31 @@ public class AccountDao {
 			}
 
 			return count;
+		}
+		
+		public int countSearchAccounts(String accEmail, Boolean accStatus, Integer accId, Integer roleId, Integer empId) {
+		    int count = 0;
+		    
+		    try (var conn = ConnectDB.getCon(); 
+		         var cs = conn.prepareCall("{call countSearchAccounts(?, ?, ?, ?, ?)}")) {  
+		        
+		        // Set parameters, handling NULL values
+		        cs.setObject(1, accEmail);
+		        cs.setObject(2, accStatus);
+		        cs.setObject(3, accId);
+		        cs.setObject(4, roleId);
+		        cs.setObject(5, empId);
+		        
+		        try (var rs = cs.executeQuery()) {
+		            if (rs.next()) {
+		                count = rs.getInt(1); // Retrieve the count result
+		            }
+		        }
+		    } catch (SQLException e) {
+		        e.printStackTrace();
+		    }
+		    
+		    return count;
 		}
 		
 		public void insertAccount(Account acc) {
@@ -190,6 +255,17 @@ public class AccountDao {
 			}
 		}
 		
+		public void deleteAccount(int accId) {
+		    try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call deleteAccount(?)}")) {
+		        cs.setInt(1, accId);
+		        cs.execute();
+		        JOptionPane.showMessageDialog(null, "Account deleted successfully!");
+		    } catch (SQLException e) {
+		        e.printStackTrace();
+		        JOptionPane.showMessageDialog(null, "Failed to delete account!");
+		    }
+		}
+
 		
 		
 //		Phuong part

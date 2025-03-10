@@ -147,20 +147,16 @@ public class ClassesDao {
 	}
 	
 	public void delete(int classId) {
-	    String sql = "{call deleteClass(?)}";
-	    
-	    try (var conn = ConnectDB.getCon();
-	         var cs = conn.prepareCall(sql)) {
-	        
+	    try (var conn = ConnectDB.getCon(); var cs = conn.prepareCall("{call deleteClass(?)}")) {
 	        cs.setInt(1, classId);
 	        cs.execute();
-
-	        
+	        JOptionPane.showMessageDialog(null, "Class deleted successfully!");
 	    } catch (Exception e) {
 	        e.printStackTrace();
-	       
+	        JOptionPane.showMessageDialog(null, "Failed to delete class!");
 	    }
 	}
+
 
 	public List<Classes> pagingClass(int currentPage, int numberOfRows) {
 	    List<Classes> list = new ArrayList<>();

@@ -95,101 +95,101 @@ public class StudentSub extends JPanel {
 		lblPicture = new JLabel("");
 		lblPicture.setOpaque(true);
 		lblPicture.setBackground(Color.CYAN);
-		lblPicture.setBounds(10, 342, 130, 160);
+		lblPicture.setBounds(10, 342, 160, 160);
 		add(lblPicture);
 
 		lblStuId = new JLabel("Student ID:");
-		lblStuId.setBounds(150, 342, 100, 30);
+		lblStuId.setBounds(185, 342, 100, 30);
 		add(lblStuId);
 
 		lblStuName = new JLabel("Student Name:");
-		lblStuName.setBounds(150, 383, 100, 30);
+		lblStuName.setBounds(185, 383, 100, 30);
 		add(lblStuName);
 
 		txtStuID = new JTextField();
 		txtStuID.setColumns(10);
-		txtStuID.setBounds(260, 342, 120, 30);
+		txtStuID.setBounds(295, 342, 120, 30);
 		add(txtStuID);
 
 		txtStuName = new JTextField();
 		txtStuName.setColumns(10);
-		txtStuName.setBounds(260, 388, 120, 30);
+		txtStuName.setBounds(295, 388, 120, 30);
 		add(txtStuName);
 
 		lblStuGender = new JLabel("Gender:");
-		lblStuGender.setBounds(150, 424, 100, 30);
+		lblStuGender.setBounds(185, 424, 100, 30);
 		add(lblStuGender);
 
 		rdbtnMale = new JRadioButton("Male");
 		buttonGroup.add(rdbtnMale);
-		rdbtnMale.setBounds(260, 428, 52, 30);
+		rdbtnMale.setBounds(295, 428, 52, 30);
 		add(rdbtnMale);
 
 		rdbtnFemale = new JRadioButton("Female");
 		buttonGroup.add(rdbtnFemale);
-		rdbtnFemale.setBounds(321, 428, 59, 30);
+		rdbtnFemale.setBounds(356, 428, 98, 30);
 		add(rdbtnFemale);
 
 		lblStuDob = new JLabel("DOB:");
-		lblStuDob.setBounds(150, 465, 100, 30);
+		lblStuDob.setBounds(185, 465, 100, 30);
 		add(lblStuDob);
 
 		dcStuDob = new JDateChooser();
-		dcStuDob.setBounds(260, 465, 120, 30);
+		dcStuDob.setBounds(295, 465, 120, 30);
 		add(dcStuDob);
 
 		txtStuEmail = new JTextField();
 		txtStuEmail.setColumns(10);
-		txtStuEmail.setBounds(260, 513, 120, 30);
+		txtStuEmail.setBounds(295, 513, 120, 30);
 		add(txtStuEmail);
 
 		lblStuEmail = new JLabel("Email:");
-		lblStuEmail.setBounds(150, 513, 100, 30);
+		lblStuEmail.setBounds(185, 513, 100, 30);
 		add(lblStuEmail);
 
 		lblStuPhone = new JLabel("Phone:");
-		lblStuPhone.setBounds(150, 554, 100, 30);
+		lblStuPhone.setBounds(185, 554, 100, 30);
 		add(lblStuPhone);
 
 		txtPhone = new JTextField();
 		txtPhone.setColumns(10);
-		txtPhone.setBounds(260, 554, 120, 30);
+		txtPhone.setBounds(295, 554, 120, 30);
 		add(txtPhone);
 
 		txtAddress = new JTextField();
 		txtAddress.setColumns(10);
-		txtAddress.setBounds(260, 595, 120, 30);
+		txtAddress.setBounds(295, 595, 120, 30);
 		add(txtAddress);
 
 		lblStuAddress = new JLabel("Address:");
-		lblStuAddress.setBounds(150, 595, 100, 30);
+		lblStuAddress.setBounds(185, 595, 100, 30);
 		add(lblStuAddress);
 
 		btnChangeImg = new JButton("Change Image");
 		btnChangeImg.addActionListener(this::btnChangeStuImgActionPerformed);
-		btnChangeImg.setBounds(10, 513, 130, 41);
+		btnChangeImg.setBounds(10, 512, 160, 41);
 		add(btnChangeImg);
 
 		btnStuAdd = new JButton("Add");
 		btnStuAdd.addActionListener(this::btnAddStuActionPerformed);
-		btnStuAdd.setBounds(10, 651, 110, 30);
+		btnStuAdd.setBounds(10, 651, 83, 30);
 		add(btnStuAdd);
 
 		btnStuUpdate = new JButton("Update");
 		btnStuUpdate.addActionListener(this::btnUpdateStuActionPerformed);
-		btnStuUpdate.setBounds(130, 651, 110, 30);
+		btnStuUpdate.setBounds(103, 651, 83, 30);
 		add(btnStuUpdate);
 
 		btnStuDelete = new JButton("Delete");
 		btnStuDelete.addActionListener(this::btnDeleteStuActionPerformed);
-		btnStuDelete.setBounds(260, 651, 110, 30);
+		btnStuDelete.setBounds(196, 651, 88, 30);
 		add(btnStuDelete);
 		
 		tablePageStu = new TablePage(
 				this::loadDataStudent,
 				this::countTotalRows
 				);
-		tablePageStu.setBounds(10, 51, 872, 271);
+		tablePageStu.setBounds(10, 51, 894, 271);
 		columnMapping.put(0, Integer.class);    
 		columnMapping.put(1, String.class);      
 		columnMapping.put(2, Boolean.class);    
@@ -231,20 +231,20 @@ public class StudentSub extends JPanel {
 		
 		
 		JLabel lblEnroll = new JLabel("Enrollment List");
-		lblEnroll.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblEnroll.setBounds(450, 342, 120, 30);
+		lblEnroll.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblEnroll.setBounds(460, 340, 120, 30);
 		add(lblEnroll);
 		
 		JButton btnRefresh = new JButton("Refresh");
 		btnRefresh.addActionListener(this::btnRefreshActionPerformed);
-		btnRefresh.setBounds(450, 651, 130, 30);
+		btnRefresh.setBounds(460, 651, 130, 30);
 		add(btnRefresh);
 		
 		tablePageEnroll = new TablePage(
 				this::loadEnrollData,
 				this::countTotalRowsEnroll
 				);
-		tablePageEnroll.setBounds(450, 376, 432, 265);
+		tablePageEnroll.setBounds(460, 376, 432, 265);
 		tablePageEnroll.setColumnNamesAndTypes(
 	            new String[]{
 	                "Enroll Id", "Enroll Date", "Class Name", "Course Name", "Stu ID", "Status"
@@ -260,6 +260,11 @@ public class StudentSub extends JPanel {
 	        );
 		
 		add(tablePageEnroll);
+		
+		JButton btnSearch = new JButton("Search");
+		btnSearch.setBounds(292, 651, 88, 30);
+		btnSearch.addActionListener(this::searchBtnAction);
+		add(btnSearch);
 //		tablePageStu.setOnTableClickListener(() -> {
 //			
 //			tablePageEnroll.resetTable();
@@ -289,6 +294,45 @@ public class StudentSub extends JPanel {
 	        });
 	    }
 	    return list;
+	}
+	
+	protected void searchBtnAction (ActionEvent e) {
+		 // Update the data fetcher and count fetcher in the existing table instance
+	    tablePageStu.setDataFetcher(this::searchDataStudent);
+	    tablePageStu.setCountFetcher(this::countTotalRowsSearch);
+	    
+	    // Refresh the table to apply the new search parameters
+	    tablePageStu.resetTable();
+
+	    JOptionPane.showMessageDialog(null, "Search completed!");
+	}
+	
+	public List<Object[]> searchDataStudent(int currentPage, int numberOfRows) {
+		var searchName = (txtStuName.getText().isEmpty())? null : txtStuName.getText();
+		var searchGender = (rdbtnMale.isSelected())? true : false;
+		var searchEmail = (txtStuEmail.getText().isEmpty())? null : txtStuEmail.getText();
+		var searchPhone = (txtPhone.getText().isEmpty())? null : txtPhone.getText();
+		
+		 List<Object[]> list = new ArrayList<>();
+		    var dao = new StudentDao();
+		    var students = dao.pagingSearchStudent(searchName, searchGender, searchEmail, searchPhone, currentPage, numberOfRows);
+
+		    for (var stu : students) {
+		        list.add(new Object[] {
+		            stu.getStuId(),                        
+		            stu.getStuName(),                      
+		            stu.isStuGender(),                     
+		            java.sql.Date.valueOf(stu.getStuDob()), 
+		            stu.getStuEmail(),                     
+		            stu.getStuPhone(),                     
+		            stu.getStuAddress(),                   
+		            (stu.getStuImage() == null) ? 
+		                new ImageIcon(new BufferedImage(80, 80, BufferedImage.TYPE_INT_ARGB)) : // Default blank image
+		                new ImageIcon(new ImageIcon(stu.getStuImage()).getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH)), // Student Image
+		            stu.getStuImage()                      // Image Path (Stored as String)
+		        });
+		    }
+		    return list;
 	}
 	
 	public List<Object[]> loadEnrollData(int currentPage, int numberOfRows) {
@@ -322,6 +366,16 @@ public class StudentSub extends JPanel {
 		
 		var	dao = new EnrollStuDao();
 	      return dao.countEnrollListOfStu(currentStuId); 
+	  }
+	
+	private Integer countTotalRowsSearch() {
+		var searchName = (txtStuName.getText().isEmpty())? null : txtStuName.getText();
+		var searchGender = (rdbtnMale.isSelected())? true : false;
+		var searchEmail = (txtStuEmail.getText().isEmpty())? null : txtStuEmail.getText();
+		var searchPhone = (txtPhone.getText().isEmpty())? null : txtPhone.getText();
+		
+		var	dao = new StudentDao();
+	      return dao.countSearchStudent(searchName, searchGender, searchEmail, searchPhone); 
 	  }
 
 	// event button update employee
@@ -452,13 +506,16 @@ public class StudentSub extends JPanel {
 
 	    txtStuID.setText("");
 	    txtStuName.setText("");
-	    rdbtnMale.setSelected(false);
-	    rdbtnFemale.setSelected(false);
+//	    rdbtnMale.setSelected(false);
+//	    rdbtnFemale.setSelected(false);
+	    buttonGroup.clearSelection();
 	    txtPhone.setText("");
 	    txtAddress.setText("");
 	    txtStuEmail.setText("");
 	    dcStuDob.setDate(null);
-
+	    
+	    tablePageStu.setDataFetcher(this::loadDataStudent);
+	    tablePageStu.setCountFetcher(this::countTotalRows);
 		tablePageStu.resetTable();
 	}
 }

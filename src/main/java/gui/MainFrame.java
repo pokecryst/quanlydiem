@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TestFrame extends JFrame {
+public class MainFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -68,7 +68,7 @@ public class TestFrame extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public TestFrame(Account acc) {
+	public MainFrame(Account acc) {
 		setCurrentAcc(acc);
 		
 		setBackground(new Color(255, 255, 255));
@@ -76,7 +76,7 @@ public class TestFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // Center the window
         setResizable(false);
-        setBounds(100, 100, 1300, 800);
+        setBounds(100, 100, 1175, 790);
         
         menuBar = new JMenuBar();
         setJMenuBar(menuBar);
@@ -129,7 +129,6 @@ public class TestFrame extends JFrame {
 	
 	
 	protected void showInfo(ActionEvent e) {
-//		JOptionPane.showMessageDialog(this, currentAcc.toString());
 		var conn = ConnectDB.getCon();
 		
 			var f = AccountInfo.getInstance();
@@ -157,54 +156,4 @@ public class TestFrame extends JFrame {
 	}
 
 	
-//	protected void showReport(ActionEvent e) {
-//		 try {
-//	            // 1️⃣ Load and compile the Jasper template (.jrxml)	      
-//			 InputStream reportStream = getClass().getClassLoader().getResourceAsStream("reports/students_report.jrxml");
-//			 if (reportStream == null) {
-//			     throw new RuntimeException("Report file not found in resources folder!");
-//			 }
-//			 JasperReport jasperReport = JasperCompileManager.compileReport(reportStream);
-//
-//	            // 2️⃣ Get Student Data
-//	            List<Map<String, Object>> dataList = new ArrayList<>();
-//	            var dao = new StudentDao();
-//	            var students = dao.pagingStudent(1, 10); // Fetch 10 students (example)
-//
-//	            for (var stu : students) {
-//	                Map<String, Object> studentData = new HashMap<>();
-//	                studentData.put("stuId", stu.getStuId());
-//	                studentData.put("stuName", stu.getStuName());
-//	                studentData.put("stuGender", stu.isStuGender() ? "Male" : "Female");
-//	                studentData.put("stuDob", java.sql.Date.valueOf(stu.getStuDob()).toString());
-//	                studentData.put("stuEmail", stu.getStuEmail());
-//	                studentData.put("stuPhone", stu.getStuPhone());
-//	                studentData.put("stuAddress", stu.getStuAddress());
-//
-//	                // Handle student image
-//	                if (stu.getStuImage() != null && new File(stu.getStuImage()).exists()) {
-//	                    studentData.put("stuImage", stu.getStuImage()); // Pass file path
-//	                } else {
-//	                    studentData.put("stuImage", "default_image.png"); // Default image path
-//	                }
-//
-//	                dataList.add(studentData);
-//	            }
-//
-//	            // 3️⃣ Convert Data to JasperReports Data Source
-//	            JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(dataList);
-//
-//	            // 4️⃣ Fill the Report with Data
-//	            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, null, dataSource);
-//
-//	            // 5️⃣ Export to PDF
-//	            JasperExportManager.exportReportToPdfFile(jasperPrint, "Student_Report.pdf");
-//
-//	           JOptionPane.showMessageDialog(null, "Student report generated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-//	        } catch (Exception ex) {
-//	            ex.printStackTrace();
-//	            JOptionPane.showMessageDialog(null, "Error generating student report: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-//	        }
-//	}
-
 }

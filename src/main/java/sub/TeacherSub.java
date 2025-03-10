@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -69,6 +70,7 @@ public class TeacherSub extends JPanel {
 	private JButton            btnAddEmp;
 	private TablePage          tablePageTeacher;
 	private Map<Integer, Class<?>> columnMapping = new HashMap<>();
+	private final ButtonGroup buttonGroup      = new ButtonGroup();
 
 	private String filenew = null; // ten file moi
 	private String fileold = null; // ten file cu
@@ -88,7 +90,7 @@ public class TeacherSub extends JPanel {
 		lblNewLabel.setBounds(10, 11, 872, 24);
 		add(lblNewLabel);
 		
-		btnNewButton = new JButton("Clear Feild");
+		btnNewButton = new JButton("Refresh");
 		btnNewButton.addActionListener(this::btnNewButtonActionPerformed);
 		btnNewButton.setBounds(10, 351, 120, 23);
 		add(btnNewButton);
@@ -133,10 +135,12 @@ public class TeacherSub extends JPanel {
 
 		rdbtnMale = new JRadioButton("Male");
 		rdbtnMale.setBounds(300, 515, 64, 30);
+		buttonGroup.add(rdbtnMale);
 		add(rdbtnMale);
 
 		rdbtnFemale = new JRadioButton("FeMale");
 		rdbtnFemale.setBounds(366, 515, 84, 30);
+		buttonGroup.add(rdbtnFemale);
 		add(rdbtnFemale);
 
 		btnNewButton_1 = new JButton("Change Image");
@@ -177,6 +181,7 @@ public class TeacherSub extends JPanel {
 
 		btnDeleteEmp = new JButton("Delete");
 		btnDeleteEmp.setBounds(346, 589, 200, 100);
+		btnDeleteEmp.addActionListener(this::btnDeleteEmpActionPerformed);
 		add(btnDeleteEmp);
 
 		btnAddEmp = new JButton("Add");
@@ -359,6 +364,27 @@ public class TeacherSub extends JPanel {
 	
 	}
 	
+	protected void btnDeleteEmpActionPerformed(ActionEvent e) {
+	    // Ensure an employee is selected
+	    if (txtEmpId.getText().isEmpty()) {
+	        JOptionPane.showMessageDialog(null, "Please select an employee to delete!");
+	        return;
+	    }
+
+	    // Parse Employee ID
+	    int empId = Integer.parseInt(txtEmpId.getText());
+
+	    // Confirm deletion
+	    int confirm = JOptionPane.showConfirmDialog(null, 
+	        "Are you sure you want to delete this employee?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+
+	    if (confirm == JOptionPane.YES_OPTION) {
+	        var dao = new EmployeeDao(); // Assuming you have an EmployeeDao class
+	        dao.deleteEmployee(empId);
+	        resetEverything(); 
+	    }
+	}
+	
 	protected void btnNewButtonActionPerformed(ActionEvent e) {
 		resetEverything();
 	}
@@ -368,8 +394,7 @@ public class TeacherSub extends JPanel {
 
 		txtEmpId.setText("");
 		txtEmpName.setText("");
-		rdbtnMale.setSelected(false);
-		rdbtnFemale.setSelected(false);
+		buttonGroup.clearSelection();
 		txtEmpPhone.setText("");
 		txtEmpAddress.setText("");
 		dcHD.setDate(null);
