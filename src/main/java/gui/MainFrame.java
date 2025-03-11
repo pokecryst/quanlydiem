@@ -17,12 +17,12 @@ import javax.swing.border.EmptyBorder;
 import dao.GradeStuDao;
 import dao.StudentDao;
 import entity.Account;
+import popup.AccountInfo;
+import popup.ManageClass;
+import popup.ReportFrame;
 import service.ConnectDB;
-import sub.AccountInfo;
 import sub.AdminSubFrame;
 import sub.MFrame_ClassManagePanel2;
-import sub.ManageClass;
-import sub.ReportFrame;
 import sub.StaffSubFrame;
 
 import java.awt.FlowLayout;
@@ -44,10 +44,11 @@ public class MainFrame extends JFrame {
 	private JMenuBar menuBar;
     private JMenu mnNewMenu;
     private JMenuItem mntmTeacherAccInfo;
+    private JMenuItem mntmPrintReport;
 
     private Account currentAcc  = new Account();
     private JDesktopPane desktopPane;
-    private JMenuItem mntmPrintReport;
+    
 
 	/**
 	 * Launch the application.
@@ -111,6 +112,7 @@ public class MainFrame extends JFrame {
             mainPanel.setBackground(new Color(255, 255, 255));
             desktopPane.add(mainPanel, BorderLayout.CENTER);
         }else if(acc.getRoleId()==2) {
+        		mntmPrintReport.setVisible(false);
         	 MFrame_ClassManagePanel2 mainPanel = new MFrame_ClassManagePanel2(acc);
              mainPanel.setBackground(new Color(255, 255, 255));
              desktopPane.add(mainPanel, BorderLayout.CENTER);
@@ -128,9 +130,7 @@ public class MainFrame extends JFrame {
 	}
 	
 	
-	protected void showInfo(ActionEvent e) {
-		var conn = ConnectDB.getCon();
-		
+	protected void showInfo(ActionEvent e) {		
 			var f = AccountInfo.getInstance();
 			
 			f.setAccount(currentAcc);

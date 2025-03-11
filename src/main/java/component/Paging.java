@@ -1,5 +1,5 @@
 
-package gui;
+package component;
 
 import java.awt.Color;
 import java.awt.Font;

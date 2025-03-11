@@ -1,4 +1,4 @@
-package gui;
+package component;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -21,8 +21,9 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
+import component.Paging.CountFetcher;
+import component.Paging.PagingListener;
 import dao.EnrollStuDao;
-import gui.Paging.CountFetcher;
 
 public class TablePage extends JPanel implements Paging.PagingListener {
 

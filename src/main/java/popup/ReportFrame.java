@@ -1,4 +1,4 @@
-package sub;
+package popup;
 
 import java.awt.EventQueue;
 import java.awt.Image;
@@ -22,14 +22,14 @@ import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
 
+import component.TablePage;
+import component.Paging.CountFetcher;
+import component.TablePage.DataFetcher;
 import dao.EnrollStuDao;
 import dao.EnrollmentDao;
 import dao.StudentDao;
 
 import java.awt.BorderLayout;
-import gui.TablePage;
-import gui.TablePage.DataFetcher;
-import gui.Paging.CountFetcher;
 
 import javax.swing.ImageIcon;
 import javax.swing.JDesktopPane;
@@ -89,7 +89,7 @@ public class ReportFrame extends JInternalFrame {
 	public ReportFrame(int classId) {
 		setClosable(true);
 		this.classID = classId;
-		setTitle("Report");
+		setTitle((classId == 0)? "Report" : "Student List");
 		setResizable(false);
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

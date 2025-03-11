@@ -1,4 +1,4 @@
-package sub;
+package popup;
 
 import java.awt.EventQueue;
 
@@ -40,11 +40,14 @@ import java.awt.Image;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import com.toedter.calendar.JDateChooser;
+
+import component.Paging;
+import component.TablePage;
+import component.Paging.CountFetcher;
+import component.TablePage.DataFetcher;
+
 import javax.swing.JComboBox;
-import gui.Paging;
-import gui.Paging.CountFetcher;
-import gui.TablePage;
-import gui.TablePage.DataFetcher;
+
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

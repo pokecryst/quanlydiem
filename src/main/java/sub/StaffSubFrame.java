@@ -56,21 +56,19 @@ public class StaffSubFrame extends JPanel {
         tabbedPane.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-            	 if  (tabbedPane.getSelectedIndex() == COURSE_TAB_INDEX && panelCourse == null) {
+            	 if  (tabbedPane.getSelectedIndex() == COURSE_TAB_INDEX) {
                      panelCourse = new CourseSub();
                      tabbedPane.setComponentAt(COURSE_TAB_INDEX, panelCourse);
 
                      System.out.println("Loaded Course Panel");
                  }         
 
-                 // Lazy load Student tab
                  else if (tabbedPane.getSelectedIndex() == STUDENT_TAB_INDEX && panelStudent == null) {
                      panelStudent = new StudentSub();
                      tabbedPane.setComponentAt(STUDENT_TAB_INDEX, panelStudent);
                      System.out.println("Loaded Student Panel");
                  }
 
-                 // Lazy load Class Manager tab
                  else if (tabbedPane.getSelectedIndex() == CLASS_MANAGER_TAB_INDEX) {
                      panelClassManager = new MFrame_ClassManagePanel2(acc);
                  	panelClassManager.populateTree();

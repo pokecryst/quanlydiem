@@ -27,6 +27,9 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
+import component.TablePage;
+import component.Paging.CountFetcher;
+import component.TablePage.DataFetcher;
 import dao.AccountDao;
 import dao.CourseDao;
 import dao.EmployeeDao;
@@ -36,9 +39,6 @@ import dao.StudentDao;
 import entity.Account;
 import entity.Course;
 import entity.Employee;
-import gui.TablePage;
-import gui.TablePage.DataFetcher;
-import gui.Paging.CountFetcher;
 
 public class AcountSub extends JPanel {
 
@@ -97,6 +97,7 @@ public class AcountSub extends JPanel {
 		txtAccId.setBounds(170, 402, 200, 30);
 		add(txtAccId);
 		txtAccId.setColumns(10);
+		txtAccId.setEditable(false);
 
 		txtAccmail = new JTextField();
 		txtAccmail.setColumns(10);

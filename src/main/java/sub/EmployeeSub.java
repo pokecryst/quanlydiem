@@ -37,11 +37,11 @@ import javax.swing.table.DefaultTableModel;
 
 import com.toedter.calendar.JDateChooser;
 
+import component.TablePage;
+import component.Paging.CountFetcher;
+import component.TablePage.DataFetcher;
 import dao.EmployeeDao;
 import entity.Employee;
-import gui.TablePage;
-import gui.TablePage.DataFetcher;
-import gui.Paging.CountFetcher;
 
 public class EmployeeSub extends JPanel {
 
@@ -111,6 +111,7 @@ public class EmployeeSub extends JPanel {
 		add(lblEmpGender);
 
 		txtEmpId = new JTextField();
+		txtEmpId.setEditable(false);
 		txtEmpId.setBounds(300, 385, 150, 30);
 		add(txtEmpId);
 		txtEmpId.setColumns(10);

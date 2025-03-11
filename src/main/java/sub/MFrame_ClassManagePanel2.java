@@ -37,6 +37,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+import component.TablePage;
 import dao.ClassesDao;
 import dao.CourseDao;
 import dao.EmployeeDao;
@@ -48,10 +49,11 @@ import entity.Account;
 import entity.Classes;
 import entity.Grade;
 import entity.Student;
-import gui.TablePage;
 import helper.Regex;
+import popup.AddClass;
+import popup.ManageClass;
+import popup.UpdateGrade;
 import service.ConnectDB;
-import sub.UpdateGrade;
 
 import javax.swing.JTextField;
 import javax.swing.JButton;

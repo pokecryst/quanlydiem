@@ -31,6 +31,9 @@ import javax.swing.table.DefaultTableModel;
 
 import com.toedter.calendar.JDateChooser;
 
+import component.TablePage;
+import component.Paging.CountFetcher;
+import component.TablePage.DataFetcher;
 import dao.ClassStatusDao;
 import dao.ClassesDao;
 import dao.CourseDao;
@@ -40,9 +43,8 @@ import entity.ClassStatus;
 import entity.Classes;
 import entity.Course;
 import entity.Employee;
-import gui.TablePage;
-import gui.TablePage.DataFetcher;
-import gui.Paging.CountFetcher;
+import popup.ReportFrame;
+
 import javax.swing.JDesktopPane;
 
 public class CourseSub extends JPanel {
@@ -125,6 +127,7 @@ public class CourseSub extends JPanel {
 		desktopPane.add(lblCourseId);
 
 		txtCourseId = new JTextField();
+		txtCourseId.setEditable(false);
 		txtCourseId.setColumns(10);
 		txtCourseId.setBounds(698, 41, 180, 30);
 		desktopPane.add(txtCourseId);
@@ -182,6 +185,7 @@ public class CourseSub extends JPanel {
 		desktopPane.add(lblClassId);
 
 		textField_3 = new JTextField();
+		textField_3.setEditable(false);
 		textField_3.setColumns(10);
 		textField_3.setBounds(698, 382, 180, 30);
 		desktopPane.add(textField_3);

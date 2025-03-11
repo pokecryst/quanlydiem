@@ -73,21 +73,18 @@ public class AdminSubFrame extends JPanel {
                      tabbedPane.setComponentAt(ACCOUNT_TAB_INDEX, panelAccount);
                      
             	 }
-            	// Lazy load Teacher tab
                  else if (tabbedPane.getSelectedIndex() == TEACHER_TAB_INDEX && panelTeacher == null) {
                      panelTeacher = new TeacherSub();
                      tabbedPane.setComponentAt(TEACHER_TAB_INDEX, panelTeacher);
                      System.out.println("Loaded Teacher Panel");
                  }
 
-                 // Lazy load Course tab
-                 else if (tabbedPane.getSelectedIndex() == COURSE_TAB_INDEX && panelCourse == null) {
+                 else if (tabbedPane.getSelectedIndex() == COURSE_TAB_INDEX) {
                      panelCourse = new CourseSub();
                      tabbedPane.setComponentAt(COURSE_TAB_INDEX, panelCourse);
                      System.out.println("Loaded Course Panel");
                  }
 
-                 // Lazy load Student tab
                  else if (tabbedPane.getSelectedIndex() == STUDENT_TAB_INDEX && panelStudent == null) {
                      panelStudent = new StudentSub();
                      tabbedPane.setComponentAt(STUDENT_TAB_INDEX, panelStudent);
